@@ -11,7 +11,11 @@ function Download-File([string]$Url, [string]$Path) {
     Invoke-WebRequest -UseBasicParsing -Uri $Url -OutFile $Path -TimeoutSec 180
 }
 function Assert-Hash([string]$Path, [string]$Expected) {
-    if ($Expected -notmatch '^[a-f0-9]{64}$' -or (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Expected) {
+    $stream = [IO.File]::OpenRead($Path)
+    $algorithm = [Security.Cryptography.SHA256]::Create()
+    try { $actual = [BitConverter]::ToString($algorithm.ComputeHash($stream)).Replace('-', '').ToLowerInvariant() }
+    finally { $stream.Dispose(); $algorithm.Dispose() }
+    if ($Expected -notmatch '^[a-f0-9]{64}$' -or $actual -ne $Expected) {
         throw 'Subor nepresiel kontrolou. Instalacia zastavena.'
     }
 }
