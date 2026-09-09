@@ -9,3 +9,20 @@ jobs:
       - uses: actions/checkout@v4
       - name: Test Windows PowerShell installer in temporary game folders
         run: python -m unittest discover -s tests -v
+  live-download:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download latest public release into an isolated fixture
+        shell: powershell
+        run: |
+          $game = Join-Path $env:RUNNER_TEMP 'Valheim-installer-live-test'
+          New-Item -ItemType Directory -Path $game | Out-Null
+          Set-Content -LiteralPath (Join-Path $game 'valheim.exe') -Value 'fixture only'
+          & .\Install-Valheim.ps1 -GamePath $game
+          if ($LASTEXITCODE -ne 0) { throw 'Live installer failed' }
+          $dll = Join-Path $game 'BepInEx\plugins\ValheimGuildTelemetry\ValheimGuildTelemetry.dll'
+          $version = [Reflection.AssemblyName]::GetAssemblyName($dll).Version
+          Write-Host "Installed assembly version: $version"
+          if (-not (Test-Path (Join-Path $game 'winhttp.dll'))) { throw 'Loader missing' }

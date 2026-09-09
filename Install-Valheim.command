@@ -93,6 +93,7 @@ printf '%s\n' "$VERSION" > "$TEMP_DIR/stage/valheim-guild-version.txt"
 # Validate the entire destination before touching files, including symlinked ancestors.
 (cd "$TEMP_DIR/stage" && find . -type f) | sed 's|^./||' > "$TEMP_DIR/targets.txt"
 while IFS= read -r rel; do
+  [ ! -e "$GAME/$rel" ] || [ -f "$GAME/$rel" ] || fail 'Cielovy subor je priecinok. Instalacia zastavena.'
   check="$GAME/$rel"
   while [ "$check" != "$GAME" ]; do
     [ ! -L "$check" ] || fail 'Ciel obsahuje symbolicky odkaz. Instalacia zastavena.'

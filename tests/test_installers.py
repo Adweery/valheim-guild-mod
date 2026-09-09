@@ -44,7 +44,7 @@ class InstallerTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
-    def run_installer(self, running=False):
+    def run_installer(self, running=False, fail_copy=False):
         self.manifest_path.write_text(json.dumps(self.manifest))
         if self.platform == 'windows':
             shell = shutil.which('powershell.exe')
@@ -52,15 +52,21 @@ class InstallerTests(unittest.TestCase):
                 self.skipTest('Windows PowerShell required')
             wrapper = self.root / 'wrapper.ps1'
             # Mock only network and process observation. All file installation is real in temp.
-            wrapper.write_text('''function Invoke-WebRequest { param($UseBasicParsing, $Uri, $OutFile, $TimeoutSec)
+            wrapper.write_text(r'''function Invoke-WebRequest { param($UseBasicParsing, $Uri, $OutFile, $TimeoutSec)
  $source = if ($Uri.EndsWith('latest.json')) { 'latest.json' } elseif ($Uri.EndsWith('ValheimGuildTelemetry.zip')) { 'mod.zip' } else { 'loader.zip' }
  Copy-Item -LiteralPath (Join-Path $env:FIXTURES $source) -Destination $OutFile
+}
+function Copy-Item { param($LiteralPath, $Destination, [switch]$Recurse, [switch]$Force, $ErrorAction)
+ if ($env:FAIL_COPY -eq '1' -and $LiteralPath -match '[\\/]stage[\\/]' -and $Destination.EndsWith('ValheimGuildTelemetry.dll')) {
+  [IO.File]::WriteAllText($Destination, 'partial write'); throw 'Test write failure'
+ }
+ Microsoft.PowerShell.Management\Copy-Item @PSBoundParameters
 }
 function Get-Process { param($Name, $ErrorAction) if ($env:FAKE_RUNNING -eq '1') { [pscustomobject]@{Name='valheim'} } }
 & $env:INSTALLER -GamePath $env:GAME_FIXTURE
 exit $LASTEXITCODE
 '''.replace('param($UseBasicParsing,', 'param([switch]$UseBasicParsing,'))
-            env = dict(os.environ, FIXTURES=str(self.root), FAKE_RUNNING=str(int(running)), INSTALLER=str(ROOT/'Install-Valheim.ps1'), GAME_FIXTURE=str(self.game))
+            env = dict(os.environ, FIXTURES=str(self.root), FAKE_RUNNING=str(int(running)), INSTALLER=str(ROOT/'Install-Valheim.ps1'), GAME_FIXTURE=str(self.game), FAIL_COPY=str(int(fail_copy)))
             command = [shell, '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', str(wrapper)]
         else:
             if sys.platform != 'darwin': self.skipTest('macOS tools required')
@@ -69,7 +75,10 @@ exit $LASTEXITCODE
             pgrep = self.root / 'pgrep'; pgrep.write_text('#!/bin/sh\nexit '+('0' if running else '1')+'\n'); pgrep.chmod(0o755)
             script = self.root / 'test.command'
             script.write_text((ROOT/'Install-Valheim.command').read_text().replace('/usr/bin/curl', '"'+str(fetch)+'"').replace('/usr/bin/pgrep', '"'+str(pgrep)+'"'))
-            env = dict(os.environ, FIXTURES=str(self.root))
+            mock_bin = self.root / 'bin'; mock_bin.mkdir(exist_ok=True)
+            cp = mock_bin / 'cp'
+            cp.write_text('#!'+sys.executable+'\nimport os,sys,subprocess\na=sys.argv[1:]\nif os.environ["FAIL_COPY"]=="1" and len(a)>=2 and "/stage/" in a[-2] and a[-1].endswith("ValheimGuildTelemetry.dll"):\n open(a[-1],"w").write("partial write");sys.exit(1)\nsys.exit(subprocess.call(["/bin/cp"]+a))\n'); cp.chmod(0o755)
+            env = dict(os.environ, FIXTURES=str(self.root), FAIL_COPY=str(int(fail_copy)), PATH=str(mock_bin)+os.pathsep+os.environ['PATH'])
             command = ['/bin/bash', str(script), str(self.game)]
         return subprocess.run(command, env=env, capture_output=True, text=True, input='', timeout=60)
 
@@ -125,6 +134,22 @@ exit $LASTEXITCODE
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('Nebezpecna', result.stdout + result.stderr)
         self.assertFalse(self.plugin.exists())
+
+
+    def test_directory_collision_preserved(self):
+        self.assertEqual(self.run_installer().returncode, 0)
+        self.plugin.unlink(); self.plugin.mkdir()
+        result = self.run_installer()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('Cielovy subor', result.stdout + result.stderr)
+        self.assertTrue(self.plugin.is_dir())
+
+    def test_failed_write_restores_previous_mod(self):
+        self.assertEqual(self.run_installer().returncode, 0)
+        self.plugin.write_bytes(b'old working mod')
+        result = self.run_installer(fail_copy=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(self.plugin.read_bytes(), b'old working mod')
 
 
 if __name__ == '__main__': unittest.main()

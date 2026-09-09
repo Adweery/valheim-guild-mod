@@ -122,7 +122,11 @@ try {
     Copy-Item -LiteralPath $modFiles[0].FullName -Destination $pluginDir
     Set-Content -LiteralPath (Join-Path $stage 'valheim-guild-version.txt') -Value $version -Encoding ASCII
     $files = @(Get-ChildItem -LiteralPath $stage -Recurse -File)
-    foreach ($file in $files) { Assert-NoLink (Join-Path $GamePath $file.FullName.Substring($stage.Length + 1)) }
+    foreach ($file in $files) {
+        $target = Join-Path $GamePath $file.FullName.Substring($stage.Length + 1)
+        if ((Test-Path -LiteralPath $target) -and -not (Test-Path -LiteralPath $target -PathType Leaf)) { throw 'Cielovy subor je priecinok. Instalacia zastavena.' }
+        Assert-NoLink $target
+    }
     Assert-NoLink (Join-Path $GamePath 'ValheimGuildBackups')
     Assert-GameStopped
     $Backup = Join-Path $GamePath ('ValheimGuildBackups\' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + [guid]::NewGuid().ToString('N'))
