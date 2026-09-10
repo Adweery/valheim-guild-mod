@@ -26,3 +26,13 @@ jobs:
           $version = [Reflection.AssemblyName]::GetAssemblyName($dll).Version
           Write-Host "Installed assembly version: $version"
           if (-not (Test-Path (Join-Path $game 'winhttp.dll'))) { throw 'Loader missing' }
+
+  protocol:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Check telemetry and quest protocol
+        run: dotnet run --project src/StateTests

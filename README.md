@@ -2,6 +2,19 @@
 
 Pre partiu RavensOath. Inštalátor vždy sťahuje aktuálne vydanie z tohto repozitára. GitHub účet hráča nie je potrebný.
 
+## Herný denník od verzie 1.1.0
+
+- **F8** otvorí denník osobných a tímových questov. Na Macu môže byť potrebné **Fn + F8** podľa nastavenia funkčných klávesov.
+- **Sledovať** pripne najviac päť questov do bočného panela. Dokončené questy uvoľnia miesto.
+- **F9** zobrazí alebo skryje panel. Klávesy a veľkosť sa dajú zmeniť v `BepInEx/config/adwery.valheim.guildtelemetry.cfg`.
+- Denník zobrazuje kapitoly, aktuálny počet pri automatických úlohách, Renown a prípravu na Swamp. Prepínač Aktívne/Dokončené mení zoznam.
+- Dokončenie počas hrania zobrazí krátke oznámenie. Pri pripojení sa staré dokončenia znovu neoznamujú.
+- Účet musí byť prepojený cez Discord `/linkgame`. Nepotrebuješ nový token ani ďalšie prihlásenie.
+
+Údaje sa obnovujú približne do 15 sekúnd. Pri výpadku zostane posledný stav označený ako starší. Manuálne questy stále potvrdzuješ cez Discord `/complete`; samotné otvorenie denníka nepridáva XP. Do Discord chatu sa pri obnovovaní panela neposielajú správy.
+
+Server potrebuje mod 1.1.0 a export z bota. Staršie klienty naďalej posielajú progres. Táto verzia neobsahuje mapové šípky ani waypointy.
+
 ## Windows
 
 1. Stiahni [inštalátor pre Windows](https://github.com/Adweery/valheim-guild-mod/releases/latest/download/Valheim-Guild-Installer-Windows.zip) a rozbaľ celý ZIP.
@@ -36,10 +49,21 @@ Zdroj pravdy pre klientov: `releases/latest/download/latest.json`. Manifest odka
 
 Inštalátor a mod sú samostatné časti. Oprava bota v Discorde nevyžaduje klientsku aktualizáciu. Zmenu sieťového protokolu treba zladiť so serverom pred nastavením nového vydania ako latest.
 
-`python build_release.py --version 1.0.1 --dll /cesta/ValheimGuildTelemetry.dll --loader /cesta/BepInExPack.zip --output /cesta/vydanie` pripraví manifest a ZIPy. Pred vydaním treba overiť zostavenie a funkčnosť daného DLL. Skript nevytvára vydanie na GitHube automaticky.
+`python build_release.py --version 1.1.0 --dll /cesta/ValheimGuildTelemetry.dll --loader /cesta/BepInExPack.zip --output /cesta/vydanie` pripraví manifest a ZIPy. Pred vydaním treba overiť zostavenie a funkčnosť daného DLL. Skript nevytvára vydanie na GitHube automaticky.
 
 Vydanie vytvor najprv ako draft, nahraj všetky štyri súbory a až potom ho zverejni. Tým je manifest a jeho obsah dostupný spolu. Verejný manifest cez HTTPS a kontrolné súčty chránia konzistenciu prenosu; nejde o nezávislý digitálny podpis autora. Dôvera v aktualizácie závisí od prístupu správcu do tohto repozitára.
 
 Testy používajú izolované dočasné priečinky. Mac: `python3 -m unittest discover -s tests -v`. Windows PowerShell sa testuje na štandardnom Windows runneri v GitHub Actions.
 
 Závislosť a jej zdroje/licencie: [BepInExPack Valheim](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/) a [BepInEx](https://github.com/AzumattDev/BepInEx). Balík BepInEx sa v tomto repozitári nedistribuuje.
+
+## Zdrojový kód a zostavenie
+
+V `src/ValheimGuildTelemetry` je mod a v `src/StateTests` testy protokolu. Použi .NET SDK 8. Referenčné DLL hry získaj zo svojej legálnej inštalácie z priečinka Managed, BepInEx a 0Harmony z BepInEx/core. Herné DLL sa nesmú pribaliť do vydania. Pre serverový build používame `assembly_valheim`, `assembly_utils`, `UnityEngine` a `UnityEngine.CoreModule` z dedikovaného servera a `UnityEngine.IMGUIModule`, `UnityEngine.TextRenderingModule`, `UnityEngine.InputLegacyModule` z klienta rovnakej verzie hry.
+
+```sh
+dotnet run --project src/StateTests
+dotnet build src/ValheimGuildTelemetry -c Release -p:GameReferences=/cesta/referencie -p:LoaderReferences=/cesta/BepInEx/core
+```
+
+Serverový adaptér a jeho zapojenie opisuje [server/README.md](server/README.md). UI v reálnej hernej relácii na Macu a Windows ešte čaká na manuálne overenie; zostavenie, modelové testy a načítanie na dedikovanom serveri sú overené.

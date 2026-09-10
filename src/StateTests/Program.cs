@@ -1,0 +1,51 @@
+using System;
+using ValheimGuildTelemetry;
+var s=new ProgressState();var id=Guid.NewGuid().ToString("N");
+void Check(bool value) { if(!value) throw new Exception("Assertion failed"); }
+Check(s.Apply("steam1","Huso",id,1,"kill","$enemy_troll",1,100));
+Check(!s.Apply("steam1","Huso",id,1,"kill","$enemy_troll",1,100));
+Check(s.players[0].counters[0].count==1);
+Check(s.Apply("steam1","Huso",id,2,"biome","Swamp",1,101));
+Check(s.Apply("steam1","Huso",id,3,"biome","Swamp",1,102));
+Check(s.players[0].counters[1].count==1);
+Check(s.Apply("steam1","Huso",id,4,"craft","category:arrows",20,103));
+Check(s.players[0].counters[2].count==20);
+Check(!s.Apply("steam1","Huso",id,5,"craft","category:arrows",-1,104));
+Check(!s.Apply("steam1","Huso",id,5,"unknown","x",1,104));
+Console.WriteLine("10 telemetry state assertions passed.");
+
+var restored=JsonCodec.Read(JsonCodec.Write(s));
+if(restored.players[0].counters.Count!=s.players[0].counters.Count) throw new Exception("JSON roundtrip");
+Console.WriteLine("JSON counters and sessions roundtrip passed");
+
+Check(!WorldGuard.Matches(null,"1208923522"));
+Check(!WorldGuard.Matches(new ZNet(),"1208923522"));
+Check(WorldGuard.Matches(new ZNet {Name="RavensOath",Uid=1208923522},"1208923522"));
+Check(!WorldGuard.Matches(new ZNet {Name="Other",Uid=99},"1208923522"));
+Console.WriteLine("Handshake and world identity regression passed");
+
+QuestSnapshot Make(long stamp, bool done=false) => new QuestSnapshot {uid="world",status="ok",generated_at=stamp,profile_name="Viking",quests=new System.Collections.Generic.List<GuildQuest>{new GuildQuest {id=1,title="Swamp",chapter="II",xp=25,completed=done}}};
+var feed=new QuestFeedData {schema=1,uid="world",generated_at=1000,players=new System.Collections.Generic.List<QuestProfile>{new QuestProfile {account_id="private-id",profile_name="Viking",quests=Make(1000).quests}}};
+Check(feed.Select("stranger","world",1001).status=="unlinked");
+Check(feed.Select("private-id","other",1001).status=="unavailable");
+Check(feed.Select("private-id","world",1200).status=="unavailable");
+var wire=QuestJson.Write(feed.Select("private-id","world",1001));
+Check(!wire.Contains("private-id") && !wire.Contains("account_id"));
+var client=new QuestClientState();
+Check(client.Accept(QuestJson.Read<QuestSnapshot>(wire),"world",0));
+Check(client.Completions.Count==0);
+Check(!client.Accept(Make(999),"world",1));
+Check(!client.Accept(Make(1001),"other",1));
+Check(client.Accept(Make(1001,true),"world",1));
+Check(client.Completions.Count==1);
+Check(client.Accept(Make(1001,true),"world",2));
+Check(client.Completions.Count==1);
+Check(!client.Stale(3,1002));Check(client.Stale(35,1002));
+Check(!client.Accept(new QuestSnapshot {uid="world",status="unavailable"},"world",4));
+Check(client.Snapshot!=null);
+Check(client.Accept(new QuestSnapshot {uid="world",status="unlinked"},"world",5));
+Check(client.Snapshot==null && client.Completions.Count==0);
+Check(client.Accept(Make(1002,true),"world",6));Check(client.Completions.Count==0);
+var malformed=Make(1003);malformed.quests.Add(malformed.quests[0]);
+Check(!client.Accept(malformed,"world",7));
+Console.WriteLine("Quest privacy, freshness, cache, validation and completion replay checks passed.");
