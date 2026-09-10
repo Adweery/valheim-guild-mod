@@ -9,3 +9,7 @@ Export sa zapisuje každých 10 sekúnd atomicky s právami 0600. Bot a dedikova
 Klient žiada snapshot cez existujúce herné RPC každých 5 sekúnd. Server určuje účet z autentifikovaného herného spojenia a posiela iba príslušné osobné a tímové úlohy. Odpoveď neobsahuje Steam ani Discord ID. Nie sú potrebné nové sieťové porty alebo prihlasovacie údaje.
 
 Export používa konzistentné čítanie SQLite a nemení XP, questy ani účty. Príznak dokončenia pochádza z databázy; existujúci bot ostáva jediným správcom odmien. Súbor starší než 180 sekúnd sa neposiela ako aktuálny. Klient označuje neaktuálnu cache a neprehráva staré oznámenia pri prvom načítaní.
+
+## Zosúladenie 1.2.0
+
+Súbory bot.py, monitor.py a telemetry.py sú aktualizované časti existujúceho bota, nie kompletná samostatná distribúcia. Zachovaj jeho ostatné moduly a konfiguráciu. WorldMonitor.initialized sa nastaví až po úspešnom prvom načítaní sveta; QuestFeed čaká na túto udalosť. Prvé načítanie používa notify=False. Existujúca fronta správ sa nemaže. Pri prepojení účtu sa v jednej SQLite transakcii prehodnotia uložené počítadlá s notify=False. Ďalšie živé dokončenia sa oznamujú normálne.

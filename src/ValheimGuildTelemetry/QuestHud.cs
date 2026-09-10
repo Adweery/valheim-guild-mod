@@ -11,7 +11,8 @@ public partial class Plugin
 {
     internal static bool JournalOpen;
     private QuestBridge quests;
-    private ConfigEntry<bool> trackerEnabled;
+    private ConfigEntry<bool> trackerEnabled, autoTrack;
+    private QuestSnapshot lastQuestSnapshot;
     private ConfigEntry<string> pinSetting;
     private ConfigEntry<KeyCode> journalKey, trackerKey;
     private ConfigEntry<float> panelScale;
@@ -29,6 +30,7 @@ public partial class Plugin
     private void ConfigureQuests()
     {
         var feedPath=Config.Bind("Server","QuestFeedPath",System.IO.Path.Combine(BepInEx.Paths.ConfigPath,"guild-quests.json"),"Server-only quest projection exported by the Discord bot.");
+        autoTrack=Config.Bind("Quests","AutoTrackNext",true,"Automatically track the next five unfinished goals from verified progress.");
         trackerEnabled=Config.Bind("Quests","ShowTracker",true,"Show tracked quests while in RavensOath.");
         pinSetting=Config.Bind("Quests","PinnedQuestIds","auto","Up to five tracked quest IDs; empty means none.");
         journalKey=Config.Bind("Quests","JournalKey",KeyCode.F8,"Open/close quest journal.");
@@ -57,15 +59,19 @@ public partial class Plugin
         if(quests==null) return;
         if(!CanShowQuests()) { CloseJournal();return; }
         if(JournalOpen) { Cursor.lockState=CursorLockMode.None;Cursor.visible=true; }
-        if(pinSetting.Value=="auto" && quests.Client.Snapshot!=null)
+        var snapshot=quests.Client.Snapshot;
+        if(snapshot!=null && snapshot!=lastQuestSnapshot)
         {
-            foreach(var q in quests.Client.Snapshot.quests.Where(x=>!x.completed).OrderByDescending(x=>x.chapter.Contains("Chapter II")).Take(5)) pinned.Add(q.id);
-            SavePins();
-        }
-        if(quests.Client.Snapshot!=null)
-        {
-            var active=quests.Client.Snapshot.quests.Where(q=>!q.completed).Select(q=>q.id).ToHashSet();
-            if(pinned.RemoveWhere(id=>!active.Contains(id))>0) SavePins();
+            lastQuestSnapshot=snapshot;
+            var active=snapshot.quests.Where(q=>!q.completed).Select(q=>q.id).ToHashSet();
+            bool changed=pinned.RemoveWhere(id=>!active.Contains(id))>0;
+            if(autoTrack.Value)
+            {
+                var next=QuestTracker.Select(snapshot).ToHashSet();
+                changed |= !pinned.SetEquals(next);
+                pinned.Clear();pinned.UnionWith(next);
+            }
+            if(changed) SavePins();
         }
         if(quests.Client.Completions.Count>0 && Time.realtimeSinceStartup>=toastUntil)
         {
@@ -158,6 +164,8 @@ public partial class Plugin
         if(GUILayout.Button(showCompleted?"Dokončené":"Aktívne",button,GUILayout.Width(110))) { showCompleted=!showCompleted;scroll=Vector2.zero; }
         if(GUILayout.Button(trackerEnabled.Value?"Skryť panel":"Zobraziť panel",button,GUILayout.Width(115))) trackerEnabled.Value=!trackerEnabled.Value;
         GUILayout.EndHorizontal();
+        if(GUILayout.Button(autoTrack.Value ? "Automatický výber cieľov: zapnutý" : "Zapnúť automatický výber cieľov",button))
+        { autoTrack.Value=!autoTrack.Value;lastQuestSnapshot=null; }
         var filtered=snapshot.quests.Where(q=>q.completed==showCompleted && (chapter=="Všetky" || q.chapter==chapter)).ToList();
         var existing=snapshot.quests.Select(q=>q.id).ToHashSet();
         pinned.RemoveWhere(x=>!existing.Contains(x));
@@ -170,10 +178,11 @@ public partial class Plugin
             bool selected=pinned.Contains(q.id);
             bool old=GUI.enabled;GUI.enabled=!q.completed && (selected || pinned.Count<5);
             if(GUILayout.Button(selected?"Odopnúť":"Sledovať",button,GUILayout.Width(95)))
-            { if(selected) pinned.Remove(q.id);else pinned.Add(q.id);SavePins(); }
+            { autoTrack.Value=false;if(selected) pinned.Remove(q.id);else pinned.Add(q.id);SavePins(); }
             GUI.enabled=old;GUILayout.EndHorizontal();
             GUILayout.Label(q.chapter+" • "+q.owner+" • #"+q.id,muted);
             GUILayout.Label(Progress(q)+" • +"+q.xp+" Renown",body);
+            if(!string.IsNullOrEmpty(q.assessment)) GUILayout.Label(q.assessment,muted);
             if(!string.IsNullOrEmpty(q.note)) GUILayout.Label(q.note,body);
             GUILayout.EndVertical();GUILayout.Space(5);
         }

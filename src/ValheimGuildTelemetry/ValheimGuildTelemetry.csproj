@@ -3,7 +3,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <AssemblyName>ValheimGuildTelemetry</AssemblyName>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <GameReferences Condition="'$(GameReferences)' == ''">../../../../work/server-inspection</GameReferences>
     <LoaderReferences Condition="'$(LoaderReferences)' == ''">../../../../work/mod-build/bepinex/BepInExPack_Valheim/BepInEx/core</LoaderReferences>
   </PropertyGroup>

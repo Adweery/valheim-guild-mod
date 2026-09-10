@@ -2,6 +2,14 @@
 
 Pre partiu RavensOath. Inštalátor vždy sťahuje aktuálne vydanie z tohto repozitára. GitHub účet hráča nie je potrebný.
 
+## Automatické pokračovanie od verzie 1.2.0
+
+Pri štarte bota sa najprv overí uložený svet a zaznamenaná telemetria. Denník čaká na úspešné zosúladenie. Pri prepojení účtu sa okamžite uznajú už zaznamenané splnené ciele. Odmeny sa nepridelia opakovane a historické dokončenia sa neoznamujú do chatu.
+
+Panel automaticky vyberá najviac päť nesplnených cieľov. Uprednostní rozrobené počítadlá a aktuálnu kapitolu; po dokončení doplní ďalšie ciele. Ručné pripnutie prepne panel na vlastný výber. V denníku je tlačidlo na opätovné zapnutie automatického výberu (`Quests.AutoTrackNext`).
+
+Každá úloha uvádza, či je stav doložený svetom, zaznamenanými počítadlami alebo potrebuje ručné potvrdenie. Starý crafting či zabitia pred inštaláciou sa neodhadujú z výbavy. Inventár ani truhly sa touto verziou spätne neskenujú. Neoveriteľné stavebné a organizačné úlohy zostávajú otvorené.
+
 ## Herný denník od verzie 1.1.0
 
 - **F8** otvorí denník osobných a tímových questov. Na Macu môže byť potrebné **Fn + F8** podľa nastavenia funkčných klávesov.
@@ -13,7 +21,7 @@ Pre partiu RavensOath. Inštalátor vždy sťahuje aktuálne vydanie z tohto rep
 
 Údaje sa obnovujú približne do 15 sekúnd. Pri výpadku zostane posledný stav označený ako starší. Manuálne questy stále potvrdzuješ cez Discord `/complete`; samotné otvorenie denníka nepridáva XP. Do Discord chatu sa pri obnovovaní panela neposielajú správy.
 
-Server potrebuje mod 1.1.0 a export z bota. Staršie klienty naďalej posielajú progres. Táto verzia neobsahuje mapové šípky ani waypointy.
+Server potrebuje mod 1.2.0 a export z bota. Staršie klienty naďalej posielajú progres. Táto verzia neobsahuje mapové šípky ani waypointy.
 
 ## Windows
 
@@ -49,7 +57,7 @@ Zdroj pravdy pre klientov: `releases/latest/download/latest.json`. Manifest odka
 
 Inštalátor a mod sú samostatné časti. Oprava bota v Discorde nevyžaduje klientsku aktualizáciu. Zmenu sieťového protokolu treba zladiť so serverom pred nastavením nového vydania ako latest.
 
-`python build_release.py --version 1.1.0 --dll /cesta/ValheimGuildTelemetry.dll --loader /cesta/BepInExPack.zip --output /cesta/vydanie` pripraví manifest a ZIPy. Pred vydaním treba overiť zostavenie a funkčnosť daného DLL. Skript nevytvára vydanie na GitHube automaticky.
+`python build_release.py --version 1.2.0 --dll /cesta/ValheimGuildTelemetry.dll --loader /cesta/BepInExPack.zip --output /cesta/vydanie` pripraví manifest a ZIPy. Pred vydaním treba overiť zostavenie a funkčnosť daného DLL. Skript nevytvára vydanie na GitHube automaticky.
 
 Vydanie vytvor najprv ako draft, nahraj všetky štyri súbory a až potom ho zverejni. Tým je manifest a jeho obsah dostupný spolu. Verejný manifest cez HTTPS a kontrolné súčty chránia konzistenciu prenosu; nejde o nezávislý digitálny podpis autora. Dôvera v aktualizácie závisí od prístupu správcu do tohto repozitára.
 

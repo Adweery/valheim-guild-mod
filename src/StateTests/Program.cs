@@ -49,3 +49,18 @@ Check(client.Accept(Make(1002,true),"world",6));Check(client.Completions.Count==
 var malformed=Make(1003);malformed.quests.Add(malformed.quests[0]);
 Check(!client.Accept(malformed,"world",7));
 Console.WriteLine("Quest privacy, freshness, cache, validation and completion replay checks passed.");
+var tracking=Make(2000);
+tracking.quests.Clear();
+for(int i=1;i<=8;i++) tracking.quests.Add(new GuildQuest {id=i,title="Quest "+i,chapter=i<4?"Chapter I - A New World":"Chapter II - Into the Swamp"});
+Check(QuestTracker.Select(tracking).Count==5);
+Check(QuestTracker.Select(tracking)[0]==1);
+tracking.quests[3].completed=true;
+Check(QuestTracker.Select(tracking)[0]==5);
+tracking.quests[0].automatic=true;tracking.quests[0].current=40;tracking.quests[0].target=100;
+Check(QuestTracker.Select(tracking)[0]==1);
+tracking.quests[0].completed=true;
+Check(!QuestTracker.Select(tracking).Contains(1));
+Check(QuestTracker.Select(tracking).Count==5);
+foreach(var q in tracking.quests) q.completed=true;
+Check(QuestTracker.Select(tracking).Count==0);
+Console.WriteLine("Automatic tracker: partial progress, chapter advancement, refill and all-completed passed.");

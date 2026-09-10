@@ -10,7 +10,7 @@ namespace ValheimGuildTelemetry;
 [Serializable] public class GuildQuest
 {
     public int id;
-    public string title, chapter, owner, note;
+    public string title, chapter, owner, note, assessment;
     public int xp;
     public bool completed, automatic;
     public long current, target;
@@ -81,7 +81,7 @@ public class QuestClientState
         if(next.status!="ok" || next.quests==null || next.quests.Count>256 || next.profile_name==null || next.profile_name.Length>80) return false;
         var ids=new HashSet<int>();
         foreach(var q in next.quests)
-            if(q==null || q.id<1 || !ids.Add(q.id) || q.title==null || q.title.Length>150 || q.chapter==null || q.chapter.Length>100 || (q.note!=null && q.note.Length>2000) || q.current<0 || q.target<0 || q.xp<0) return false;
+            if(q==null || q.id<1 || !ids.Add(q.id) || q.title==null || q.title.Length>150 || q.chapter==null || q.chapter.Length>100 || (q.note!=null && q.note.Length>2000) || (q.assessment!=null && q.assessment.Length>200) || q.current<0 || q.target<0 || q.xp<0) return false;
         if(Snapshot!=null && Snapshot.profile_name==next.profile_name)
         {
             if(next.generated_at<Snapshot.generated_at) return false;
