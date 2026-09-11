@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace ValheimGuildTelemetry;
 
-[BepInPlugin("adwery.valheim.guildtelemetry","Valheim Guild Telemetry","1.3.0")]
+[BepInPlugin("adwery.valheim.guildtelemetry","Valheim Guild Telemetry","1.3.1")]
 public partial class Plugin : BaseUnityPlugin
 {
     private const string RpcName="AdweryGuildTelemetryV1";
@@ -28,6 +28,7 @@ public partial class Plugin : BaseUnityPlugin
         expectedUid=Config.Bind("Server","WorldUid","1208923522","Only this world is tracked.");
         output=Config.Bind("Server","OutputPath",Path.Combine(Paths.ConfigPath,"guild-telemetry.json"),"Server-only cumulative progress file.");
         ConfigureQuests();
+        ConfigureNearbySupplies();
         harmony=new Harmony("adwery.valheim.guildtelemetry");
         harmony.PatchAll();
         Logger.LogInfo("Guild telemetry loaded: kill credit, successful crafting and biome entry hooks ready.");

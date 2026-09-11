@@ -67,6 +67,7 @@ public partial class Plugin
                 catch(Exception) { supplyWarning="Starý záznam zásob sa nedal načítať. Otvor truhly znova."; }
             }
             carried=ReadItems(Player.m_localPlayer.GetInventory());
+            ScanNearbySupplies();
             if(openChest!=null && InventoryGui.IsVisible()) ObserveOpenChest();
             IndexSupplies();
             if(Time.realtimeSinceStartup>=nextSupplySave) { nextSupplySave=Time.realtimeSinceStartup+10;SaveSupplies(); }
@@ -99,12 +100,17 @@ public partial class Plugin
     private void ObserveOpenChest()
     {
         if(supplies==null || openChest==null) return;
-        var view=openChest.GetComponent<ZNetView>();
+        ObserveChest(openChest);
+        carried=ReadItems(Player.m_localPlayer.GetInventory());
+    }
+    private void ObserveChest(Container chest)
+    {
+        var view=chest.GetComponent<ZNetView>();
         if(view==null || !view.IsValid()) return;
         var id=view.GetZDO().m_uid.ToString();
-        supplies.Observe(new ChestSeen {id=id,name="Truhla ("+Mathf.RoundToInt(openChest.transform.position.x)+", "+Mathf.RoundToInt(openChest.transform.position.z)+")",checked_at=DateTimeOffset.UtcNow.ToUnixTimeSeconds(),items=ReadItems(openChest.GetInventory())});
+        supplies.Observe(new ChestSeen {id=id,name="Truhla ("+Mathf.RoundToInt(chest.transform.position.x)+", "+Mathf.RoundToInt(chest.transform.position.z)+")",checked_at=DateTimeOffset.UtcNow.ToUnixTimeSeconds(),items=ReadItems(chest.GetInventory())});
         // Refresh both sides of a transfer. Storage is never added to the carried readiness count.
-        carried=ReadItems(Player.m_localPlayer.GetInventory());supplyDirty=true;
+        supplyDirty=true;
     }
     private void SaveSupplies()
     {
@@ -129,7 +135,8 @@ public partial class Plugin
     private void DrawSupplies()
     {
         GUILayout.Label("OSOBNÁ PRÍPRAVA A ZÁSOBY",section);
-        GUILayout.Label("Truhly: iba naposledy videný obsah. Dostupnosť over opätovným otvorením. Záznamy sú lokálne pre túto postavu a svet.",muted);
+        GUILayout.Label("V dosahu sa obsah obnovuje automaticky z hernej synchronizácie. Vzdialené truhly ostávajú starším záznamom. Cache je lokálna pre postavu a svet.",muted);
+        GUILayout.Label("Rádius: "+Mathf.Clamp(scanRadius.Value,5f,100f)+" m • prístupné truhly: "+nearbyCount+(nearbyLimited ? " • limit 100 najbližších" : ""),muted);
         if(supplyWarning!=null) GUILayout.Label(supplyWarning,muted);
         if(supplies==null) { GUILayout.Label("Čakám na inventár postavy…",body);return; }
         supplyFilter=GUILayout.TextField(supplyFilter,80);
@@ -165,7 +172,7 @@ public partial class Plugin
             foreach(var chest in sources.TryGetValue(item.key,out var locations) ? locations : new List<ChestSeen>())
             {
                 int count=chest.items.Where(i=>i.key==item.key).Sum(i=>i.count);
-                GUILayout.Label(chest.name+": "+count+" • "+Age(chest.checked_at),muted);
+                GUILayout.Label(chest.name+": "+count+" • "+Age(chest.checked_at)+(nearbyIds.Contains(chest.id)?" • v dosahu":" • starší záznam"),muted);
             }
             GUILayout.EndVertical();
         }

@@ -2,15 +2,23 @@
 
 Pre partiu RavensOath. Inštalátor vždy sťahuje aktuálne vydanie z tohto repozitára. GitHub účet hráča nie je potrebný.
 
+## Okolité truhly od verzie 1.3.1
+
+Obsah prístupných truhlíc v okruhu **30 metrov** sa obnovuje automaticky, aj keď do nich predmety pridá alebo z nich odoberie iný hráč. Mod číta aktuálny stav, ktorý už hra synchronizovala klientovi; netreba truhly otvárať. Aktualizácia závisí aj od bežného sieťového oneskorenia hry.
+
+`Supplies.ScanRadius` v konfigurácii nastaví rádius od 5 do 100 metrov. Skener používa načítané objekty hry, rešpektuje osobné truhly a wardy a nepreberá vlastníctvo objektov. Spracuje 32 truhlíc každé dve sekundy, najviac 100 najbližších. Pri plnom limite trvá celý cyklus približne osem sekúnd. Vzdialené truhly ostávajú výslovne starším záznamom. Pri zistenej strate prístupu alebo zničení truhlice sa jej obsah zo zoznamu odstráni.
+
+Integračné testy simulujú pridanie, odobratie a vyprázdnenie truhly druhým hráčom, zmenu oprávnení, wardy, dosah a dávkové obnovovanie. Reálny test dvoch pripojených hráčov ešte čaká na manuálne overenie.
+
 ## Sken zásob od verzie 1.3.0
 
-Vo **F8 > Zásoby a výbava** uvidíš inventár, nasadené predmety s kvalitou a obsah truhlíc, ktoré si otvoril. Inventár a otvorená truhla sa obnovujú každé dve sekundy; konečný stav sa načíta aj pri zatvorení truhly. Zamknuté a vzdialené truhly sa neprehľadávajú.
+Vo **F8 > Zásoby a výbava** uvidíš inventár, nasadené predmety s kvalitou a obsah truhlíc, ktoré si otvoril. Inventár a otvorená truhla sa obnovujú každé dve sekundy; konečný stav sa načíta aj pri zatvorení truhly. Zamknuté a vzdialené truhly sa neprehľadávajú. Od 1.3.1 sa načítajú aj prístupné truhly v nastavenom rádiuse.
 
 Pri predmete vidíš oddelene počet pri sebe a naposledy videný počet v truhlách. Truhla má herné súradnice a čas overenia. Aj nedávny záznam môže byť neaktuálny, ak s truhlou medzičasom pracoval niekto iný. Pred odchodom ju znova otvor.
 
 Tlačidlami −, + a +5 nastavíš vlastný cieľový počet do batoha. Zásoby v truhle ho nesplnia: panel odporučí najprv overiť zásoby a pribaliť chýbajúce kusy. Cieľ zostáva uložený aj keď inventár a truhla ostanú prázdne. Toto je osobný zoznam prípravy, nie automatická zmena crafting questov alebo odmena XP.
 
-Cache je lokálna pre postavu a svet v `BepInEx/config/ValheimGuildSupplies`. Obsahuje najviac 100 naposledy otvorených truhlíc a 4000 záznamov predmetov. Nezdieľa sa medzi hráčmi ani medzi Macom a Windows. Plánovanie je zatiaľ ručné; automatické odporúčania podľa akcie a bojového štýlu nie sú súčasťou tohto vydania.
+Cache je lokálna pre postavu a svet v `BepInEx/config/ValheimGuildSupplies`. Obsahuje najviac 100 naposledy overených truhlíc a 4000 záznamov predmetov. Nezdieľa sa medzi hráčmi ani medzi Macom a Windows. Plánovanie je zatiaľ ručné; automatické odporúčania podľa akcie a bojového štýlu nie sú súčasťou tohto vydania.
 
 Sken nevyžaduje aktualizáciu servera 1.2.0 ani nové sieťové porty. Hru treba pred klientskou aktualizáciou vypnúť. Načítanie pluginu a modelové testy sú overené; otvorenie truhly a vykreslenie novej karty v pripojenej hre ešte vyžadujú manuálnu skúšku.
 
@@ -69,7 +77,7 @@ Zdroj pravdy pre klientov: `releases/latest/download/latest.json`. Manifest odka
 
 Inštalátor a mod sú samostatné časti. Oprava bota v Discorde nevyžaduje klientsku aktualizáciu. Zmenu sieťového protokolu treba zladiť so serverom pred nastavením nového vydania ako latest.
 
-`python build_release.py --version 1.3.0 --dll /cesta/ValheimGuildTelemetry.dll --loader /cesta/BepInExPack.zip --output /cesta/vydanie` pripraví manifest a ZIPy. Pred vydaním treba overiť zostavenie a funkčnosť daného DLL. Skript nevytvára vydanie na GitHube automaticky.
+`python build_release.py --version 1.3.1 --dll /cesta/ValheimGuildTelemetry.dll --loader /cesta/BepInExPack.zip --output /cesta/vydanie` pripraví manifest a ZIPy. Pred vydaním treba overiť zostavenie a funkčnosť daného DLL. Skript nevytvára vydanie na GitHube automaticky.
 
 Vydanie vytvor najprv ako draft, nahraj všetky štyri súbory a až potom ho zverejni. Tým je manifest a jeho obsah dostupný spolu. Verejný manifest cez HTTPS a kontrolné súčty chránia konzistenciu prenosu; nejde o nezávislý digitálny podpis autora. Dôvera v aktualizácie závisí od prístupu správcu do tohto repozitára.
 

@@ -35,4 +35,6 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       - name: Check telemetry and quest protocol
-        run: dotnet run --project src/StateTests
+        run: |
+          dotnet run --project src/StateTests
+          dotnet run --project src/NearbyTests
