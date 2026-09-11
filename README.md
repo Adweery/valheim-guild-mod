@@ -2,6 +2,14 @@
 
 Pre partiu RavensOath. Inštalátor vždy sťahuje aktuálne vydanie z tohto repozitára. GitHub účet hráča nie je potrebný.
 
+## Ovládanie od verzie 1.3.2
+
+**J** otvorí a zatvorí denník. **Escape** ho zatvorí a **F8** ostáva záložná skratka. Pri otvorení sa uvoľní kurzor a zablokuje ovládanie postavy a kamery. Escape pri zatváraní denníka nemá zároveň otvoriť herné menu.
+
+Skratka nereaguje počas písania do herného chatu alebo konzoly. Pri vyhľadávaní zásob môžeš písať písmeno J; na zatvorenie vtedy použi Escape alebo F8. Kláves ostáva nastaviteľný cez `Quests.JournalKey`. Pôvodná predvolená hodnota F8 sa jednorazovo zmení na J; iné vlastné klávesy sa zachovajú. Ak máš J nastavené na inú hernú akciu, zvoľ vlastný kláves. Na overovanom Macu nebol J obsadený v uložených herných bindochoch.
+
+Overené automatické testy klávesovej logiky a zostavenie. Živé overenie kláves, kurzora a kliknutia v hre zatiaľ neprebehlo.
+
 ## Okolité truhly od verzie 1.3.1
 
 Obsah prístupných truhlíc v okruhu **30 metrov** sa obnovuje automaticky, aj keď do nich predmety pridá alebo z nich odoberie iný hráč. Mod číta aktuálny stav, ktorý už hra synchronizovala klientovi; netreba truhly otvárať. Aktualizácia závisí aj od bežného sieťového oneskorenia hry.
@@ -77,7 +85,7 @@ Zdroj pravdy pre klientov: `releases/latest/download/latest.json`. Manifest odka
 
 Inštalátor a mod sú samostatné časti. Oprava bota v Discorde nevyžaduje klientsku aktualizáciu. Zmenu sieťového protokolu treba zladiť so serverom pred nastavením nového vydania ako latest.
 
-`python build_release.py --version 1.3.1 --dll /cesta/ValheimGuildTelemetry.dll --loader /cesta/BepInExPack.zip --output /cesta/vydanie` pripraví manifest a ZIPy. Pred vydaním treba overiť zostavenie a funkčnosť daného DLL. Skript nevytvára vydanie na GitHube automaticky.
+`python build_release.py --version 1.3.2 --dll /cesta/ValheimGuildTelemetry.dll --loader /cesta/BepInExPack.zip --output /cesta/vydanie` pripraví manifest a ZIPy. Pred vydaním treba overiť zostavenie a funkčnosť daného DLL. Skript nevytvára vydanie na GitHube automaticky.
 
 Vydanie vytvor najprv ako draft, nahraj všetky štyri súbory a až potom ho zverejni. Tým je manifest a jeho obsah dostupný spolu. Verejný manifest cez HTTPS a kontrolné súčty chránia konzistenciu prenosu; nejde o nezávislý digitálny podpis autora. Dôvera v aktualizácie závisí od prístupu správcu do tohto repozitára.
 

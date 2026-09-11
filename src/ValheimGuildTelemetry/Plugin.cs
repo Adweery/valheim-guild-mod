@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace ValheimGuildTelemetry;
 
-[BepInPlugin("adwery.valheim.guildtelemetry","Valheim Guild Telemetry","1.3.1")]
+[BepInPlugin("adwery.valheim.guildtelemetry","Valheim Guild Telemetry","1.3.2")]
 public partial class Plugin : BaseUnityPlugin
 {
     private const string RpcName="AdweryGuildTelemetryV1";

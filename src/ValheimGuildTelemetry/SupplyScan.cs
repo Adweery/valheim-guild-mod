@@ -139,6 +139,7 @@ public partial class Plugin
         GUILayout.Label("Rádius: "+Mathf.Clamp(scanRadius.Value,5f,100f)+" m • prístupné truhly: "+nearbyCount+(nearbyLimited ? " • limit 100 najbližších" : ""),muted);
         if(supplyWarning!=null) GUILayout.Label(supplyWarning,muted);
         if(supplies==null) { GUILayout.Label("Čakám na inventár postavy…",body);return; }
+        GUI.SetNextControlName("GuildSupplySearch");
         supplyFilter=GUILayout.TextField(supplyFilter,80);
         GUILayout.Label("Vyhľadávanie podľa názvu • tlačidlami −/+ nastav cieľový počet do batoha",muted);
         supplyScroll=GUILayout.BeginScrollView(supplyScroll);

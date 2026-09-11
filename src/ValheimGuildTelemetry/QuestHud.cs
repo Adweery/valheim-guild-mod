@@ -10,6 +10,9 @@ namespace ValheimGuildTelemetry;
 public partial class Plugin
 {
     internal static bool JournalOpen;
+    internal static int BlockMenuThroughFrame=-1;
+    internal static bool SuppressMenu => JournalOpen || Time.frameCount<=BlockMenuThroughFrame;
+    private readonly HashSet<KeyCode> heldJournalKeys=new HashSet<KeyCode>();
     private QuestBridge quests;
     private ConfigEntry<bool> trackerEnabled, autoTrack;
     private QuestSnapshot lastQuestSnapshot;
@@ -33,7 +36,13 @@ public partial class Plugin
         autoTrack=Config.Bind("Quests","AutoTrackNext",true,"Automatically track the next five unfinished goals from verified progress.");
         trackerEnabled=Config.Bind("Quests","ShowTracker",true,"Show tracked quests while in RavensOath.");
         pinSetting=Config.Bind("Quests","PinnedQuestIds","auto","Up to five tracked quest IDs; empty means none.");
-        journalKey=Config.Bind("Quests","JournalKey",KeyCode.F8,"Open/close quest journal.");
+        journalKey=Config.Bind("Quests","JournalKey",KeyCode.J,"Open/close quest journal. F8 is always a fallback. Escape closes it.");
+        var shortcutRevision=Config.Bind("Quests","ShortcutRevision",0,"Internal shortcut migration version; keep the generated value.");
+        if(shortcutRevision.Value<1)
+        {
+            if(journalKey.Value==KeyCode.F8) journalKey.Value=KeyCode.J;
+            shortcutRevision.Value=1;
+        }
         trackerKey=Config.Bind("Quests","TrackerKey",KeyCode.F9,"Show/hide quest tracker.");
         panelScale=Config.Bind("Quests","Scale",1f,"Quest UI scale, from 0.75 to 1.5.");
         foreach(var text in pinSetting.Value.Split(',')) if(int.TryParse(text,out var id) && pinned.Count<5) pinned.Add(id);
@@ -43,12 +52,12 @@ public partial class Plugin
     private void CloseJournal()
     {
         if(!JournalOpen) return;
-        JournalOpen=false;Cursor.lockState=previousLock;Cursor.visible=previousCursor;
+        JournalOpen=false;BlockMenuThroughFrame=Time.frameCount+1;Cursor.lockState=previousLock;Cursor.visible=previousCursor;
     }
     private void ToggleJournal()
     {
         if(JournalOpen) { CloseJournal();return; }
-        previousLock=Cursor.lockState;previousCursor=Cursor.visible;JournalOpen=true;
+        GUI.FocusControl(null);previousLock=Cursor.lockState;previousCursor=Cursor.visible;JournalOpen=true;
         float scale=Scale();
         journalRect=new Rect(Math.Max(8,(Screen.width/scale-760)/2),Math.Max(8,(Screen.height/scale-580)/2),Math.Min(760,Screen.width/scale-16),Math.Min(580,Screen.height/scale-16));
         Cursor.lockState=CursorLockMode.None;Cursor.visible=true;
@@ -57,7 +66,7 @@ public partial class Plugin
     private void LateUpdate()
     {
         if(quests==null) return;
-        if(!CanShowQuests()) { CloseJournal();return; }
+        if(!CanShowQuests()) { heldJournalKeys.Clear();CloseJournal();return; }
         if(JournalOpen) { Cursor.lockState=CursorLockMode.None;Cursor.visible=true; }
         var snapshot=quests.Client.Snapshot;
         if(snapshot!=null && snapshot!=lastQuestSnapshot)
@@ -101,11 +110,17 @@ public partial class Plugin
         if(quests==null || !CanShowQuests()) return;
         Styles();
         var ev=Event.current;
-        bool typing=(Chat.instance!=null && Chat.instance.HasFocus()) || global::Console.IsVisible() || TextInput.IsVisible();
-        if(ev.type==EventType.KeyDown && !typing)
+        bool blocked=(Chat.instance!=null && Chat.instance.HasFocus()) || global::Console.IsVisible() || TextInput.IsVisible() || (!JournalOpen && Menu.IsVisible());
+        bool editing=JournalOpen && GUI.GetNameOfFocusedControl()=="GuildSupplySearch";
+        if(ev.type==EventType.KeyUp) heldJournalKeys.Remove(ev.keyCode);
+        if(ev.type==EventType.KeyDown)
         {
-            if(ev.keyCode==journalKey.Value) { ToggleJournal();ev.Use(); }
-            else if(ev.keyCode==trackerKey.Value) { trackerEnabled.Value=!trackerEnabled.Value;ev.Use(); }
+            bool shortcut=ev.keyCode==journalKey.Value || ev.keyCode==KeyCode.F8 || ev.keyCode==KeyCode.Escape;
+            bool repeated=shortcut && !heldJournalKeys.Add(ev.keyCode);
+            var action=repeated ? JournalAction.None : JournalInputPolicy.Decide(ev.keyCode.ToString(),journalKey.Value.ToString(),JournalOpen,blocked,editing,ev.control || ev.alt || ev.command);
+            if(action==JournalAction.Close) { GUI.FocusControl(null);CloseJournal();ev.Use(); }
+            else if(action==JournalAction.Open) { ToggleJournal();ev.Use(); }
+            else if(!blocked && !editing && ev.keyCode==trackerKey.Value) { trackerEnabled.Value=!trackerEnabled.Value;ev.Use(); }
         }
         var previous=GUI.matrix;
         float scale=Scale();GUI.matrix=Matrix4x4.Scale(new Vector3(scale,scale,1));
@@ -128,7 +143,7 @@ public partial class Plugin
         float y=Math.Min(245,Math.Max(80,Screen.height/Scale()-height-20));
         GUILayout.BeginArea(new Rect(screenWidth-width-18,y,width,height),panel);
         GUILayout.Label("RAVENSOATH",heading);
-        GUILayout.Label(journalKey.Value+" denník   •   "+trackerKey.Value+" skryť",muted);
+        GUILayout.Label(journalKey.Value+" / F8 denník   •   "+trackerKey.Value+" skryť",muted);
         GUILayout.Space(6);
         var snapshot=quests.Client.Snapshot;
         if(snapshot==null) GUILayout.Label(StatusText(),body);
@@ -149,7 +164,7 @@ public partial class Plugin
     private void DrawJournal(int id)
     {
         GUILayout.BeginHorizontal();GUILayout.Label("DENNÍK GUILDY",heading);
-        if(GUILayout.Button("Zavrieť ["+journalKey.Value+"]",button,GUILayout.Width(145))) CloseJournal();
+        if(GUILayout.Button("Zavrieť ["+journalKey.Value+"]",button,GUILayout.Width(145))) { GUI.FocusControl(null);CloseJournal(); }
         GUILayout.EndHorizontal();
         GUILayout.BeginHorizontal();
         if(GUILayout.Button("Questy",button)) showSupplies=false;
@@ -206,4 +221,10 @@ internal static class JournalInputPatch
 internal static class JournalCameraPatch
 {
     private static bool Prefix() => !Plugin.JournalOpen;
+}
+
+[HarmonyPatch(typeof(Menu),"Show")]
+internal static class JournalMenuPatch
+{
+    private static bool Prefix() => !Plugin.SuppressMenu;
 }

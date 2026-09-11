@@ -90,3 +90,14 @@ for(int i=0;i<110;i++) stock.Observe(new ChestSeen {id="c"+i,name="Chest",checke
 Check(stock.chests.Count==100);
 Check(stock.Valid("world:character",1300));
 Console.WriteLine("Supply scan: transfers, empty chests, no false readiness, cache identity, persistence and limits passed.");
+
+Check(JournalInputPolicy.Decide("J","J",false,false,false,false)==JournalAction.Open);
+Check(JournalInputPolicy.Decide("J","J",true,false,false,false)==JournalAction.Close);
+Check(JournalInputPolicy.Decide("Escape","J",true,false,true,false)==JournalAction.Close);
+Check(JournalInputPolicy.Decide("Escape","J",false,false,false,false)==JournalAction.None);
+Check(JournalInputPolicy.Decide("J","J",false,true,false,false)==JournalAction.None);
+Check(JournalInputPolicy.Decide("J","J",true,false,true,false)==JournalAction.None);
+Check(JournalInputPolicy.Decide("J","J",false,false,false,true)==JournalAction.None);
+Check(JournalInputPolicy.Decide("F8","K",true,false,true,false)==JournalAction.Close);
+Check(JournalInputPolicy.Decide("K","K",false,false,false,false)==JournalAction.Open);
+Console.WriteLine("Journal input: J, Escape, F8 fallback, chat/search guards and custom keys passed.");
