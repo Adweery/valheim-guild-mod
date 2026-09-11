@@ -1,107 +1,130 @@
-# Valheim Guild - inštalácia a aktualizácie
+# Valheim Guild
 
-Pre partiu RavensOath. Inštalátor vždy sťahuje aktuálne vydanie z tohto repozitára. GitHub účet hráča nie je potrebný.
+An in-game quest journal, Renown progression, inventory overview and nearby chest tracker for Valheim, with Windows and macOS installers.
 
-## Ovládanie od verzie 1.3.2
+Originally built for the RavensOath community. **The in-game interface and bundled quest content are currently in Slovak.** Public documentation and release notes are maintained in English. Existing installer downloads also contain Slovak prompts; changing the documentation does not replace previously published packages.
 
-**J** otvorí a zatvorí denník. **Escape** ho zatvorí a **F8** ostáva záložná skratka. Pri otvorení sa uvoľní kurzor a zablokuje ovládanie postavy a kamery. Escape pri zatváraní denníka nemá zároveň otvoriť herné menu.
+The quest journal requires a compatible dedicated-server plugin and the existing Valheim Guild Discord bot with its quest feed. This repository includes integration modules, **not a complete standalone Discord bot distribution**. Another world needs its own server configuration and account linking; installing the client alone does not set up a quest service.
 
-Skratka nereaguje počas písania do herného chatu alebo konzoly. Pri vyhľadávaní zásob môžeš písať písmeno J; na zatvorenie vtedy použi Escape alebo F8. Kláves ostáva nastaviteľný cez `Quests.JournalKey`. Pôvodná predvolená hodnota F8 sa jednorazovo zmení na J; iné vlastné klávesy sa zachovajú. Ak máš J nastavené na inú hernú akciu, zvoľ vlastný kláves. Na overovanom Macu nebol J obsadený v uložených herných bindochoch.
+## Installation
 
-Overené automatické testy klávesovej logiky a zostavenie. Živé overenie kláves, kurzora a kliknutia v hre zatiaľ neprebehlo.
+A GitHub account is not required. Close Valheim before installing or updating.
 
-## Okolité truhly od verzie 1.3.1
+### Windows
 
-Obsah prístupných truhlíc v okruhu **30 metrov** sa obnovuje automaticky, aj keď do nich predmety pridá alebo z nich odoberie iný hráč. Mod číta aktuálny stav, ktorý už hra synchronizovala klientovi; netreba truhly otvárať. Aktualizácia závisí aj od bežného sieťového oneskorenia hry.
+1. Download the [Windows installer](https://github.com/Adweery/valheim-guild-mod/releases/latest/download/Valheim-Guild-Installer-Windows.zip) and extract the entire ZIP.
+2. Run `Install-Valheim.cmd`, keeping `Install-Valheim.ps1` beside it.
+3. When installation finishes (`Hotovo` means `Done`), launch Valheim through Steam.
 
-`Supplies.ScanRadius` v konfigurácii nastaví rádius od 5 do 100 metrov. Skener používa načítané objekty hry, rešpektuje osobné truhly a wardy a nepreberá vlastníctvo objektov. Spracuje 32 truhlíc každé dve sekundy, najviac 100 najbližších. Pri plnom limite trvá celý cyklus približne osem sekúnd. Vzdialené truhly ostávajú výslovne starším záznamom. Pri zistenej strate prístupu alebo zničení truhlice sa jej obsah zo zoznamu odstráni.
+### macOS
 
-Integračné testy simulujú pridanie, odobratie a vyprázdnenie truhly druhým hráčom, zmenu oprávnení, wardy, dosah a dávkové obnovovanie. Reálny test dvoch pripojených hráčov ešte čaká na manuálne overenie.
+1. Download the [Mac installer](https://github.com/Adweery/valheim-guild-mod/releases/latest/download/Valheim-Guild-Installer-Mac.zip) and extract it.
+2. With Valheim closed, try opening `Install-Valheim.command`. macOS may block the first launch because the installer is unsigned.
+3. If blocked, open **Apple menu > System Settings > Privacy & Security**, scroll to **Security**, then click **Open Anyway** next to the blocked installer. Confirm the prompt and authenticate if requested. Only approve the installer you downloaded from this repository.
+4. After installation finishes, launch the modded game using `Start-Valheim-Guild-Mac.command` in the game directory, or an already configured Valheim Guild launcher. Apple Silicon requires Rosetta.
 
-## Sken zásob od verzie 1.3.0
+If Open Anyway is missing, try opening the script once more and return to Privacy & Security. See [Apple's instructions for opening an app from an unknown developer](https://support.apple.com/en-ca/guide/mac-help/mh40616/mac).
 
-Vo **F8 > Zásoby a výbava** uvidíš inventár, nasadené predmety s kvalitou a obsah truhlíc, ktoré si otvoril. Inventár a otvorená truhla sa obnovujú každé dve sekundy; konečný stav sa načíta aj pri zatvorení truhly. Zamknuté a vzdialené truhly sa neprehľadávajú. Od 1.3.1 sa načítajú aj prístupné truhly v nastavenom rádiuse.
+These installers are not commercially code-signed. If your operating system blocks a script, report the exact message in a [GitHub issue](https://github.com/Adweery/valheim-guild-mod/issues). Do not disable system protection. The Windows launcher uses a temporary PowerShell execution policy for its own process, without changing the system policy.
 
-Pri predmete vidíš oddelene počet pri sebe a naposledy videný počet v truhlách. Truhla má herné súradnice a čas overenia. Aj nedávny záznam môže byť neaktuálny, ak s truhlou medzičasom pracoval niekto iný. Pred odchodom ju znova otvor.
+After joining your configured server, link your game account through Discord `/linkgame`. Use `/gameprogress` to check the connection.
 
-Tlačidlami −, + a +5 nastavíš vlastný cieľový počet do batoha. Zásoby v truhle ho nesplnia: panel odporučí najprv overiť zásoby a pribaliť chýbajúce kusy. Cieľ zostáva uložený aj keď inventár a truhla ostanú prázdne. Toto je osobný zoznam prípravy, nie automatická zmena crafting questov alebo odmena XP.
+## Controls
 
-Cache je lokálna pre postavu a svet v `BepInEx/config/ValheimGuildSupplies`. Obsahuje najviac 100 naposledy overených truhlíc a 4000 záznamov predmetov. Nezdieľa sa medzi hráčmi ani medzi Macom a Windows. Plánovanie je zatiaľ ručné; automatické odporúčania podľa akcie a bojového štýlu nie sú súčasťou tohto vydania.
+| Key | Action |
+| --- | --- |
+| **J** | Open or close the journal |
+| **Escape** | Close the journal |
+| **F8** | Alternative journal shortcut |
+| **F9** | Show or hide the compact quest tracker |
 
-Sken nevyžaduje aktualizáciu servera 1.2.0 ani nové sieťové porty. Hru treba pred klientskou aktualizáciou vypnúť. Načítanie pluginu a modelové testy sú overené; otvorenie truhly a vykreslenie novej karty v pripojenej hre ešte vyžadujú manuálnu skúšku.
+Opening the journal is designed to release the cursor and block character and camera input. Closing it with Escape consumes that press so it does not also open the game menu.
 
-## Automatické pokračovanie od verzie 1.2.0
+J is ignored while typing in game chat, the console or the supplies search field. Use Escape or F8 to close the journal while searching. Function keys may require Fn on a Mac.
 
-Pri štarte bota sa najprv overí uložený svet a zaznamenaná telemetria. Denník čaká na úspešné zosúladenie. Pri prepojení účtu sa okamžite uznajú už zaznamenané splnené ciele. Odmeny sa nepridelia opakovane a historické dokončenia sa neoznamujú do chatu.
+Settings are stored in `BepInEx/config/adwery.valheim.guildtelemetry.cfg`. Change `Quests.JournalKey` if J conflicts with your bindings. Version 1.3.2 migrates the old default F8 to J once, while preserving other custom keys. Tracker size and shortcuts are configurable.
 
-Panel automaticky vyberá najviac päť nesplnených cieľov. Uprednostní rozrobené počítadlá a aktuálnu kapitolu; po dokončení doplní ďalšie ciele. Ručné pripnutie prepne panel na vlastný výber. V denníku je tlačidlo na opätovné zapnutie automatického výberu (`Quests.AutoTrackNext`).
+Keyboard logic tests and compilation pass. Live verification of keyboard, cursor and clicking behavior remains pending.
 
-Každá úloha uvádza, či je stav doložený svetom, zaznamenanými počítadlami alebo potrebuje ručné potvrdenie. Starý crafting či zabitia pred inštaláciou sa neodhadujú z výbavy. Vo verzii 1.2.0 sa inventár ani truhly ešte neskenovali. Neoveriteľné stavebné a organizačné úlohy zostávajú otvorené.
+## Quest journal and automatic catch-up
 
-## Herný denník od verzie 1.1.0
+The journal shows personal and team quests, chapters, recorded progress, Renown, completed quests and Swamp preparation. It uses the same progression data as the Discord bot.
 
-- **F8** otvorí denník osobných a tímových questov. Na Macu môže byť potrebné **Fn + F8** podľa nastavenia funkčných klávesov.
-- **Sledovať** pripne najviac päť questov do bočného panela. Dokončené questy uvoľnia miesto.
-- **F9** zobrazí alebo skryje panel. Klávesy a veľkosť sa dajú zmeniť v `BepInEx/config/adwery.valheim.guildtelemetry.cfg`.
-- Denník zobrazuje kapitoly, aktuálny počet pri automatických úlohách, Renown a prípravu na Swamp. Prepínač Aktívne/Dokončené mení zoznam.
-- Dokončenie počas hrania zobrazí krátke oznámenie. Pri pripojení sa staré dokončenia znovu neoznamujú.
-- Účet musí byť prepojený cez Discord `/linkgame`. Nepotrebuješ nový token ani ďalšie prihlásenie.
+- The bot reconciles saved world state and recorded telemetry before exporting the first journal snapshot.
+- Account linking applies already recorded progress without duplicate rewards or historical completion messages.
+- Automatic tracking selects up to five unfinished quests, prioritizing partial progress and the current chapter. Completed quests are replaced with the next objectives.
+- Manually pinning a quest switches to a custom selection. Re-enable automatic selection in the journal or through `Quests.AutoTrackNext`.
+- Each quest indicates whether its progress is supported by world state, recorded counters or manual confirmation.
+- Crafting and kills from before telemetry installation are not inferred from equipment. Unverifiable building and organization tasks remain manual and use Discord `/complete`.
 
-Údaje sa obnovujú približne do 15 sekúnd. Pri výpadku zostane posledný stav označený ako starší. Manuálne questy stále potvrdzuješ cez Discord `/complete`; samotné otvorenie denníka nepridáva XP. Do Discord chatu sa pri obnovovaní panela neposielajú správy.
+Opening or refreshing the journal does not award XP or post Discord messages. Live completions can show a short in-game notification; old completions are not replayed when joining. Updates normally arrive within approximately 15 seconds. Disconnected or outdated data is marked as cached.
 
-Server potrebuje mod 1.2.0 a export z bota. Staršie klienty naďalej posielajú progres. Táto verzia neobsahuje mapové šípky ani waypointy.
+The journal needs server plugin 1.2.0 and a configured bot export. This release does not provide map arrows or waypoints. See the [server integration guide](server/README.md).
 
-## Windows
+## Inventory and nearby chests
 
-1. Stiahni [inštalátor pre Windows](https://github.com/Adweery/valheim-guild-mod/releases/latest/download/Valheim-Guild-Installer-Windows.zip) a rozbaľ celý ZIP.
-2. Vypni Valheim a otvor `Install-Valheim.cmd`. Súbor `.ps1` nechaj vedľa neho.
-3. Po hlásení „Hotovo“ spusti hru normálne cez Steam.
+Open the journal's supplies and equipment tab (`Zásoby a výbava`) to view carried items, equipped item quality and observed chest contents. Carried amounts and storage amounts are shown separately. Each chest record includes game coordinates and its last observation time.
 
-## Mac
+Accessible, loaded chests are scanned within **30 metres** by default. Set `Supplies.ScanRadius` between 5 and 100 metres. The scanner reads state already synchronized by the game, so changes by another player do not require reopening a chest, but still depend on normal network replication.
 
-1. Stiahni [inštalátor pre Mac](https://github.com/Adweery/valheim-guild-mod/releases/latest/download/Valheim-Guild-Installer-Mac.zip) a rozbaľ ZIP.
-2. Vypni Valheim a otvor `Install-Valheim.command`.
-3. Po inštalácii spúšťaj hru cez `Start-Valheim-Guild-Mac.command` v priečinku hry, prípadne cez už nastavený launcher Valheim Guild. Na Apple Silicon je potrebná Rosetta.
+The scanner respects personal-chest access and wards. It does not claim ownership or add network ports. It processes 32 chests every two seconds, up to the nearest 100. At the full limit, a scan round takes approximately eight seconds plus game network delay. Distant records remain explicitly historical. Known access loss or destruction removes the corresponding cached contents.
 
-Ak systém nedovolí spustiť stiahnutý skript, pošli Adamovi presnú hlášku. Inštalátor nie je podpísaný komerčným certifikátom. Nevypínaj systémovú ochranu. Windows spúšťa PowerShell s dočasnou politikou len pre tento proces, systémové nastavenie nemení.
+Use the minus, plus and plus-five buttons to set personal packing targets. Stored items do not satisfy a carried-item target. Targets remain saved when inventories become empty. This is a manual preparation list; it does not award crafting XP or automatically change quest completion.
 
-## Ďalšia aktualizácia
+The local cache is separated by character and world in `BepInEx/config/ValheimGuildSupplies`, with limits of 100 chests, 4,000 item records and 512 packing targets. It is not shared between players or between Windows and Mac. It is not a global scan of every chest in the world. Automatic build, food and potion recommendations are not implemented.
 
-Vypni hru a znova spusti ten istý inštalátor. Sám si stiahne aktuálny mod. Nepotrebuješ nový ZIP pri každej verzii modu. Ak sa niekedy zmení samotný formát inštalácie, Adam oznámi potrebu nového inštalátora.
+Nearby-scanning tests cover additions, removals, empty chests, access changes, wards, range and batching. A live test with two connected players and interactive supplies-tab verification remains pending. Client versions 1.3.x do not require a server update beyond 1.2.0 for this feature.
 
-- Nájde Steam knižnicu; ak nájde viac inštalácií alebo žiadnu, vyžiada priečinok hry.
-- Každé sťahovanie overí pomocou SHA-256 z manifestu vydania.
-- Pri bežiacej hre zastaví inštaláciu. Hru sám nevypína ani nespúšťa.
-- Pred zmenou uloží pôvodné súbory do `ValheimGuildBackups` v priečinku hry. Pri chybe zápisu skúsi pôvodné súbory obnoviť; zálohu zachová aj pre ručnú obnovu.
-- Nezasahuje do svetov, postáv, XP ani Discord účtov. Existujúce cudzie mody a konfiguráciu BepInEx zachová.
-- Pri chýbajúcom BepInEx stiahne pevne určený BepInExPack Valheim 5.4.2350 priamo od vydavateľa na Thunderstore. Pri inej alebo nekompletnej existujúcej verzii sa zastaví, aby ju neprepísal.
-- Dočasné odpojenie internetu alebo nedostupné vydanie zastaví inštaláciu pred zmenou hry.
+## Updates and recovery
 
-Po prvom pripojení na RavensOath prepoj herný účet cez správcu bota a skús `/gameprogress` v súkromnom testovacom kanáli.
+Close the game and run the installer again to download the latest mod. Download a fresh installer ZIP when the installer itself changes; rerunning an older script does not update that script.
 
-## Pre správcu vydaní
+The installer:
 
-Zdroj pravdy pre klientov: `releases/latest/download/latest.json`. Manifest odkazuje na konkrétne nemenné vydanie modu, nie na plávajúci ZIP. Vydávaj nové tagy; nikdy nenahrádzaj balík pod existujúcim tagom.
+- Finds Steam libraries and asks for the game directory if detection is missing or ambiguous.
+- Checks downloaded files against the release manifest's SHA-256 hashes.
+- Stops if Valheim is running, without closing or launching it.
+- Backs up replaced files in `ValheimGuildBackups` inside the game directory and attempts rollback after write failures. Backups remain available for manual recovery.
+- Preserves worlds, characters, account linking, XP, unrelated mods and existing configuration.
+- Downloads BepInExPack Valheim 5.4.2350 directly from its publisher when the loader is absent. It stops on an unrecognized or incomplete existing loader rather than overwriting it.
 
-Inštalátor a mod sú samostatné časti. Oprava bota v Discorde nevyžaduje klientsku aktualizáciu. Zmenu sieťového protokolu treba zladiť so serverom pred nastavením nového vydania ako latest.
+Manifest hashes check download consistency; they are not an independent publisher signature. Update trust depends on access to this repository.
 
-`python build_release.py --version 1.3.2 --dll /cesta/ValheimGuildTelemetry.dll --loader /cesta/BepInExPack.zip --output /cesta/vydanie` pripraví manifest a ZIPy. Pred vydaním treba overiť zostavenie a funkčnosť daného DLL. Skript nevytvára vydanie na GitHube automaticky.
+Dependencies: [BepInExPack Valheim](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/) and [BepInEx](https://github.com/AzumattDev/BepInEx). The BepInEx archive and game assemblies are not redistributed here.
 
-Vydanie vytvor najprv ako draft, nahraj všetky štyri súbory a až potom ho zverejni. Tým je manifest a jeho obsah dostupný spolu. Verejný manifest cez HTTPS a kontrolné súčty chránia konzistenciu prenosu; nejde o nezávislý digitálny podpis autora. Dôvera v aktualizácie závisí od prístupu správcu do tohto repozitára.
+## Development
 
-Testy používajú izolované dočasné priečinky. Mac: `python3 -m unittest discover -s tests -v`. Windows PowerShell sa testuje na štandardnom Windows runneri v GitHub Actions.
+Mod source is in `src/ValheimGuildTelemetry`. Use .NET SDK 8 and reference assemblies from your legally installed copy of the game. Obtain BepInEx and 0Harmony references from `BepInEx/core`.
 
-Závislosť a jej zdroje/licencie: [BepInExPack Valheim](https://thunderstore.io/c/valheim/p/denikson/BepInExPack_Valheim/) a [BepInEx](https://github.com/AzumattDev/BepInEx). Balík BepInEx sa v tomto repozitári nedistribuuje.
-
-## Zdrojový kód a zostavenie
-
-V `src/ValheimGuildTelemetry` je mod a v `src/StateTests` testy protokolu. Použi .NET SDK 8. Referenčné DLL hry získaj zo svojej legálnej inštalácie z priečinka Managed, BepInEx a 0Harmony z BepInEx/core. Herné DLL sa nesmú pribaliť do vydania. Pre serverový build používame `assembly_valheim`, `assembly_utils`, `UnityEngine` a `UnityEngine.CoreModule` z dedikovaného servera a `UnityEngine.IMGUIModule`, `UnityEngine.TextRenderingModule`, `UnityEngine.InputLegacyModule` z klienta rovnakej verzie hry.
+The build uses dedicated-server `assembly_valheim`, `assembly_utils`, `UnityEngine` and `UnityEngine.CoreModule`, plus matching client `UnityEngine.IMGUIModule`, `UnityEngine.TextRenderingModule`, `UnityEngine.InputLegacyModule` and `assembly_guiutils`. Do not include game assemblies in a release.
 
 ```sh
+dotnet build src/ValheimGuildTelemetry -c Release \
+  -p:GameReferences=/path/to/references \
+  -p:LoaderReferences=/path/to/BepInEx/core
+
 dotnet run --project src/StateTests
-dotnet build src/ValheimGuildTelemetry -c Release -p:GameReferences=/cesta/referencie -p:LoaderReferences=/cesta/BepInEx/core
+dotnet run --project src/NearbyTests
+python3 -m unittest discover -s tests -v
 ```
 
-Serverový adaptér a jeho zapojenie opisuje [server/README.md](server/README.md). UI v reálnej hernej relácii na Macu a Windows ešte čaká na manuálne overenie; zostavenie, modelové testy a načítanie na dedikovanom serveri sú overené.
+Tests use isolated state, stubs or temporary folders. Windows installer tests run on a Windows GitHub Actions runner. Passing these checks does not establish live gameplay compatibility. Build, model tests and dedicated-server plugin loading have been checked; interactive Mac/Windows UI testing remains pending. Release notes record version-specific validation and known issues.
 
-Zostavenie 1.3.0 navyše vyžaduje vlastné `assembly_guiutils.dll` z Managed priečinka rovnakej verzie hry. Toto DLL sa nedistribuuje.
+## Publishing
+
+Write public documentation, release titles, release notes, issues, pull requests and commit messages in English. Keep verification claims specific and distinguish automated checks from live gameplay tests.
+
+Prepare the four release assets using a compiled, verified DLL:
+
+```sh
+python build_release.py --version 1.3.2 \
+  --dll /path/to/ValheimGuildTelemetry.dll \
+  --loader /path/to/BepInExPack.zip \
+  --output /path/to/new-release-directory
+```
+
+The script creates `latest.json`, `ValheimGuildTelemetry.zip`, `Valheim-Guild-Installer-Windows.zip` and `Valheim-Guild-Installer-Mac.zip`. It does not publish them.
+
+Create a draft release, upload all four assets and publish only when the complete set is ready. The latest manifest points to an immutable tagged mod ZIP. Always create new tags for changed packages; never replace assets under a published tag.
+
+Installer, client mod and Discord bot versions are separate concerns. Bot-only fixes do not require a client update. Coordinate protocol changes with the dedicated server before marking a client release as latest.

@@ -1,15 +1,21 @@
-# Quest feed pre existujúceho Discord bota
+# Quest feed integration for an existing Discord bot
 
-`quest_feed.py` je adaptér k existujúcemu Valheim Guild Bot, nie samostatný bot. Vyžaduje jeho `store.Store`, `store.level` a tabuľky `players`, `quests`, `game_bindings`, `game_players`, `game_rules`; voliteľne `quest_notes`. Nedávaj sem databázu, token ani herné uložené dáta.
+`quest_feed.py` adapts the existing Valheim Guild Bot to the in-game journal. It is not a standalone bot. It requires the bot's `store.Store`, `store.level` and the tables `players`, `quests`, `game_bindings`, `game_players`, `game_rules` and `monitor_state`; `quest_notes` is optional. Never commit databases, tokens or game saves.
 
-V bote po vytvorení WorldMonitor vytvor `QuestFeed(store, world_uid, path)`. V `setup_hook` spusti `asyncio.create_task(feed.run(self))`. Pri zatváraní bota task zruš a počkaj naň pomocou `asyncio.gather(..., return_exceptions=True)`.
+## Wiring the feed
 
-Export sa zapisuje každých 10 sekúnd atomicky s právami 0600. Bot a dedikovaný server majú bežať pod rovnakým lokálnym používateľom. Modu nastav v sekcii `[Server]` parameter `QuestFeedPath` na absolútnu cestu exportu a správny `WorldUid`. Pred aktualizáciou modu zálohuj DLL, konfiguráciu, svet a telemetry.json. Aktualizuj dedikovaný server pred klientmi.
+After creating the world monitor, construct `QuestFeed(store, world_uid, path, ready=monitor.initialized)`. Start `asyncio.create_task(feed.run(self))` in the bot's `setup_hook`. On shutdown, cancel the task and await it using `asyncio.gather(..., return_exceptions=True)`.
 
-Klient žiada snapshot cez existujúce herné RPC každých 5 sekúnd. Server určuje účet z autentifikovaného herného spojenia a posiela iba príslušné osobné a tímové úlohy. Odpoveď neobsahuje Steam ani Discord ID. Nie sú potrebné nové sieťové porty alebo prihlasovacie údaje.
+The feed is exported atomically every 10 seconds with permissions `0600`. Run the bot and dedicated server as the same local OS user. Set the plugin's `[Server]` `QuestFeedPath` to the absolute export path and configure the correct `WorldUid` for your world. Back up the DLL, configuration, world and `telemetry.json` before server updates. Update the dedicated server before clients when changing the protocol.
 
-Export používa konzistentné čítanie SQLite a nemení XP, questy ani účty. Príznak dokončenia pochádza z databázy; existujúci bot ostáva jediným správcom odmien. Súbor starší než 180 sekúnd sa neposiela ako aktuálny. Klient označuje neaktuálnu cache a neprehráva staré oznámenia pri prvom načítaní.
+The client requests a snapshot through existing game RPC every five seconds. The server resolves the account from the authenticated game connection and returns only that account's personal and team quests. The response does not contain Steam or Discord IDs. No new ports or credentials are required.
 
-## Zosúladenie 1.2.0
+## Data and freshness
 
-Súbory bot.py, monitor.py a telemetry.py sú aktualizované časti existujúceho bota, nie kompletná samostatná distribúcia. Zachovaj jeho ostatné moduly a konfiguráciu. WorldMonitor.initialized sa nastaví až po úspešnom prvom načítaní sveta; QuestFeed čaká na túto udalosť. Prvé načítanie používa notify=False. Existujúca fronta správ sa nemaže. Pri prepojení účtu sa v jednej SQLite transakcii prehodnotia uložené počítadlá s notify=False. Ďalšie živé dokončenia sa oznamujú normálne.
+The export reads a consistent SQLite snapshot without changing XP, quests or accounts. Completion comes from the database; the existing bot remains responsible for rewards. Exports older than 180 seconds are withheld as current data. The client marks stale cached data and does not replay old completion notifications on initial load.
+
+## Progress reconciliation since 1.2.0
+
+`bot.py`, `monitor.py` and `telemetry.py` are updated modules from the existing bot, not a complete distribution. Preserve its other modules and configuration.
+
+`WorldMonitor.initialized` is set only after the first successful world poll, and `QuestFeed` waits for it. Initial reconciliation uses `notify=False` without deleting the existing message queue. Account linking re-evaluates recorded counters inside one SQLite transaction with `notify=False`. Subsequent live completions retain normal notifications.
