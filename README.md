@@ -2,7 +2,23 @@
 
 An in-game quest journal, Renown progression, inventory overview and nearby chest tracker for Valheim, with Windows and macOS installers.
 
-Originally built for the RavensOath community. **The in-game interface and bundled quest content are currently in Slovak.** Public documentation and release notes are maintained in English. Existing installer downloads also contain Slovak prompts; changing the documentation does not replace previously published packages.
+Originally built for the RavensOath community. Public documentation, releases and installer prompts are in English.
+
+## Language
+
+Since **1.3.3**, the mod automatically follows the language selected in Valheim:
+
+| Game language | Mod language |
+| --- | --- |
+| Slovak (SK) | Slovak |
+| English (EN) | English |
+| Any unsupported or unavailable language | English |
+
+The setting is read when the UI renders, so changing the game language also changes the journal without a mod restart. This covers journal controls, tracker/status messages, completion notifications, supplies labels and the bundled quest titles, chapters and descriptions, including Swamp preparation. No separate mod language setting is needed.
+
+Native item names continue to use the game's own item localization. Player names and custom administrator-written quests are preserved; custom text needs a matching entry in `src/ValheimGuildTelemetry/translations.json` to have a second language. Language selection only changes presentation, not saved progress, quest IDs, XP or account linking. The Discord bot retains its existing language because one shared Discord channel has no single game-language setting.
+
+Download a **fresh installer ZIP** for English installer prompts. An older installer can still update the mod, but its own prompts and bundled README remain unchanged.
 
 The quest journal requires a compatible dedicated-server plugin and the existing Valheim Guild Discord bot with its quest feed. This repository includes integration modules, **not a complete standalone Discord bot distribution**. Another world needs its own server configuration and account linking; installing the client alone does not set up a quest service.
 
@@ -14,7 +30,7 @@ A GitHub account is not required. Close Valheim before installing or updating.
 
 1. Download the [Windows installer](https://github.com/Adweery/valheim-guild-mod/releases/latest/download/Valheim-Guild-Installer-Windows.zip) and extract the entire ZIP.
 2. Run `Install-Valheim.cmd`, keeping `Install-Valheim.ps1` beside it.
-3. When installation finishes (`Hotovo` means `Done`), launch Valheim through Steam.
+3. When installation finishes (`Done`), launch Valheim through Steam.
 
 ### macOS
 
@@ -63,7 +79,7 @@ The journal needs server plugin 1.2.0 and a configured bot export. This release 
 
 ## Inventory and nearby chests
 
-Open the journal's supplies and equipment tab (`Zásoby a výbava`) to view carried items, equipped item quality and observed chest contents. Carried amounts and storage amounts are shown separately. Each chest record includes game coordinates and its last observation time.
+Open the journal's supplies and equipment tab to view carried items, equipped item quality and observed chest contents. Carried amounts and storage amounts are shown separately. Each chest record includes game coordinates and its last observation time.
 
 Accessible, loaded chests are scanned within **30 metres** by default. Set `Supplies.ScanRadius` between 5 and 100 metres. The scanner reads state already synchronized by the game, so changes by another player do not require reopening a chest, but still depend on normal network replication.
 
@@ -117,7 +133,7 @@ Write public documentation, release titles, release notes, issues, pull requests
 Prepare the four release assets using a compiled, verified DLL:
 
 ```sh
-python build_release.py --version 1.3.2 \
+python build_release.py --version 1.3.3 \
   --dll /path/to/ValheimGuildTelemetry.dll \
   --loader /path/to/BepInExPack.zip \
   --output /path/to/new-release-directory

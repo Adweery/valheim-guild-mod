@@ -103,20 +103,20 @@ exit $LASTEXITCODE
         self.manifest['mod_sha256'] = '0'*64
         result = self.run_installer()
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn('nepresiel', result.stdout + result.stderr)
+        self.assertIn('verification failed', result.stdout + result.stderr)
         self.assertFalse((self.game/'BepInEx').exists())
 
     def test_running_game_is_not_modified(self):
         result = self.run_installer(running=True)
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn('Najprv', result.stdout + result.stderr)
+        self.assertIn('Close Valheim completely', result.stdout + result.stderr)
         self.assertFalse((self.game/'BepInEx').exists())
 
     def test_foreign_manifest_url_rejected(self):
         self.manifest['mod_url'] = 'https://example.com/mod.zip'
         result = self.run_installer()
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn('Neocakavane', result.stdout + result.stderr)
+        self.assertIn('Unexpected download location', result.stdout + result.stderr)
         self.assertFalse((self.game/'BepInEx').exists())
 
     def test_conflicting_loader_is_preserved(self):
@@ -124,7 +124,7 @@ exit $LASTEXITCODE
         sentinel = self.game/'BepInEx/keep.txt'; sentinel.write_bytes(b'personal')
         result = self.run_installer()
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn('Nasiel', result.stdout + result.stderr)
+        self.assertIn('unrecognized or incomplete', result.stdout + result.stderr)
         self.assertEqual(sentinel.read_bytes(), b'personal')
 
     def test_path_traversal_rejected(self):
@@ -132,7 +132,7 @@ exit $LASTEXITCODE
         self.manifest['mod_sha256'] = sha(self.mod)
         result = self.run_installer()
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn('Nebezpecna', result.stdout + result.stderr)
+        self.assertIn('Unsafe path', result.stdout + result.stderr)
         self.assertFalse(self.plugin.exists())
 
 
@@ -141,7 +141,7 @@ exit $LASTEXITCODE
         self.plugin.unlink(); self.plugin.mkdir()
         result = self.run_installer()
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn('Cielovy subor', result.stdout + result.stderr)
+        self.assertIn('destination file is a directory', result.stdout + result.stderr)
         self.assertTrue(self.plugin.is_dir())
 
     def test_failed_write_restores_previous_mod(self):

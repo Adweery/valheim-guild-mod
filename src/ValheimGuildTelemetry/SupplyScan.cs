@@ -130,25 +130,25 @@ public partial class Plugin
     private static string Age(long stamp)
     {
         var minutes=Math.Max(0,(DateTimeOffset.UtcNow.ToUnixTimeSeconds()-stamp)/60);
-        return minutes<1 ? "pred chvíľou" : minutes<60 ? "pred "+minutes+" min" : "pred "+(minutes/60)+" h";
+        return minutes<1 ? L("pred chvíľou") : minutes<60 ? L("pred ")+minutes+L(" min") : L("pred ")+(minutes/60)+L(" h");
     }
     private void DrawSupplies()
     {
-        GUILayout.Label("OSOBNÁ PRÍPRAVA A ZÁSOBY",section);
-        GUILayout.Label("V dosahu sa obsah obnovuje automaticky z hernej synchronizácie. Vzdialené truhly ostávajú starším záznamom. Cache je lokálna pre postavu a svet.",muted);
-        GUILayout.Label("Rádius: "+Mathf.Clamp(scanRadius.Value,5f,100f)+" m • prístupné truhly: "+nearbyCount+(nearbyLimited ? " • limit 100 najbližších" : ""),muted);
-        if(supplyWarning!=null) GUILayout.Label(supplyWarning,muted);
-        if(supplies==null) { GUILayout.Label("Čakám na inventár postavy…",body);return; }
+        GUILayout.Label(L("OSOBNÁ PRÍPRAVA A ZÁSOBY"),section);
+        GUILayout.Label(L("V dosahu sa obsah obnovuje automaticky z hernej synchronizácie. Vzdialené truhly ostávajú starším záznamom. Cache je lokálna pre postavu a svet."),muted);
+        GUILayout.Label(L("Rádius: ")+Mathf.Clamp(scanRadius.Value,5f,100f)+L(" m • prístupné truhly: ")+nearbyCount+(nearbyLimited ? L(" • limit 100 najbližších") : ""),muted);
+        if(supplyWarning!=null) GUILayout.Label(L(supplyWarning),muted);
+        if(supplies==null) { GUILayout.Label(L("Čakám na inventár postavy…"),body);return; }
         GUI.SetNextControlName("GuildSupplySearch");
         supplyFilter=GUILayout.TextField(supplyFilter,80);
-        GUILayout.Label("Vyhľadávanie podľa názvu • tlačidlami −/+ nastav cieľový počet do batoha",muted);
+        GUILayout.Label(L("Vyhľadávanie podľa názvu • tlačidlami −/+ nastav cieľový počet do batoha"),muted);
         supplyScroll=GUILayout.BeginScrollView(supplyScroll);
         var items=supplyItems.Where(i=>supplyFilter.Length==0 || Localization.instance.Localize(i.name).IndexOf(supplyFilter,StringComparison.OrdinalIgnoreCase)>=0).ToList();
         supplyPage=Math.Min(supplyPage,Math.Max(0,(items.Count-1)/30));
         GUILayout.BeginHorizontal();
-        if(GUILayout.Button("Predchádzajúce",button)) supplyPage=Math.Max(0,supplyPage-1);
+        if(GUILayout.Button(L("Predchádzajúce"),button)) supplyPage=Math.Max(0,supplyPage-1);
         GUILayout.Label((supplyPage+1)+" / "+Math.Max(1,(items.Count+29)/30),muted);
-        if(GUILayout.Button("Ďalšie",button)) supplyPage=Math.Min(Math.Max(0,(items.Count-1)/30),supplyPage+1);
+        if(GUILayout.Button(L("Ďalšie"),button)) supplyPage=Math.Min(Math.Max(0,(items.Count-1)/30),supplyPage+1);
         GUILayout.EndHorizontal();
         foreach(var item in items.Skip(supplyPage*30).Take(30))
         {
@@ -159,25 +159,25 @@ public partial class Plugin
             GUILayout.BeginVertical(GUI.skin.box);
             GUILayout.BeginHorizontal();GUILayout.Label(label,section);
             if(GUILayout.Button("−",button,GUILayout.Width(32))) { supplies.SetTarget(item.key,target-1,item.name);supplyDirty=true; }
-            GUILayout.Label("Cieľ: "+target,muted,GUILayout.Width(65));
+            GUILayout.Label(L("Cieľ: ")+target,muted,GUILayout.Width(65));
             if(GUILayout.Button("+",button,GUILayout.Width(32))) { supplies.SetTarget(item.key,target+1,item.name);supplyDirty=true; }
             if(GUILayout.Button("+5",button,GUILayout.Width(40))) { supplies.SetTarget(item.key,target+5,item.name);supplyDirty=true; }
             GUILayout.EndHorizontal();
-            GUILayout.Label("Pri tebe: "+have+" • V záznamoch truhlíc: "+seen,body);
-            foreach(var worn in carried.Where(i=>i.key==item.key && i.equipped)) GUILayout.Label("Nasadené • kvalita "+worn.quality,muted);
+            GUILayout.Label(L("Pri tebe: ")+have+L(" • V záznamoch truhlíc: ")+seen,body);
+            foreach(var worn in carried.Where(i=>i.key==item.key && i.equipped)) GUILayout.Label(L("Nasadené • kvalita ")+worn.quality,muted);
             if(target>0)
             {
                 int needed=supplies.Needed(carried,item.key,target);
-                GUILayout.Label(needed==0 ? "Cieľový počet máš pri sebe" : seen>0 ? "Chýba pribaliť "+needed+". Over zásoby v truhlách skôr, než vyrobíš ďalšie." : "Chýba získať alebo vyrobiť "+needed+".",body);
+                GUILayout.Label(needed==0 ? L("Cieľový počet máš pri sebe") : seen>0 ? L("Chýba pribaliť ")+needed+L(". Over zásoby v truhlách skôr, než vyrobíš ďalšie.") : L("Chýba získať alebo vyrobiť ")+needed+".",body);
             }
             foreach(var chest in sources.TryGetValue(item.key,out var locations) ? locations : new List<ChestSeen>())
             {
                 int count=chest.items.Where(i=>i.key==item.key).Sum(i=>i.count);
-                GUILayout.Label(chest.name+": "+count+" • "+Age(chest.checked_at)+(nearbyIds.Contains(chest.id)?" • v dosahu":" • starší záznam"),muted);
+                GUILayout.Label(L(chest.name)+": "+count+" • "+Age(chest.checked_at)+(nearbyIds.Contains(chest.id)?L(" • v dosahu"):L(" • starší záznam")),muted);
             }
             GUILayout.EndVertical();
         }
-        if(items.Count==0) GUILayout.Label("Inventár je prázdny. Zásoby sa pridajú po otvorení truhlice.",body);
+        if(items.Count==0) GUILayout.Label(L("Inventár je prázdny. Zásoby sa pridajú po otvorení truhlice."),body);
         GUILayout.EndScrollView();
     }
 }

@@ -101,3 +101,32 @@ Check(JournalInputPolicy.Decide("J","J",false,false,false,true)==JournalAction.N
 Check(JournalInputPolicy.Decide("F8","K",true,false,true,false)==JournalAction.Close);
 Check(JournalInputPolicy.Decide("K","K",false,false,false,false)==JournalAction.Open);
 Console.WriteLine("Journal input: J, Escape, F8 fallback, chat/search guards and custom keys passed.");
+
+// Reject missing localization and wrong-language fallback, including a language change.
+var textType=typeof(QuestSnapshot).Assembly.GetType("ValheimGuildTelemetry.GuildText");
+if(textType==null) throw new Exception("Language-aware journal text is missing");
+var translate=(Func<string,string,string>)Delegate.CreateDelegate(typeof(Func<string,string,string>),textType.GetMethod("Translate"));
+foreach(var lang in new[]{"English","en","German","Czech","",null})
+    if(translate("DENNÍK GUILDY",lang)!="GUILD JOURNAL") throw new Exception("English fallback failed: "+lang);
+foreach(var lang in new[]{"Slovak","sk","SK","Slovenčina","sk-SK"})
+    if(translate("DENNÍK GUILDY",lang)!="DENNÍK GUILDY") throw new Exception("Slovak selection failed: "+lang);
+Check(translate("Zabiť Eldera","English")=="Defeat The Elder");
+Check(translate("Zabiť Eldera","Slovak")=="Zabiť Eldera");
+Check(translate("Zabiť Eldera  •  +50 Renown","French")=="Defeat The Elder  •  +50 Renown");
+Check(translate("Truhla (10, -5)","English")=="Chest (10, -5)");
+Check(translate("Custom quest by a player","English")=="Custom quest by a player");
+Check(translate(null,"English")==null);
+Console.WriteLine("Language selection, fallback, live switching and legacy text localization passed.");
+Check(translate("Chapter II - Into the Swamp","Slovak")=="Kapitola II - Do močiarov");
+Check(translate("Zásoby a výbava","Slovenian")=="Supplies and equipment");
+Check(translate("Tím","en-US")=="Team");
+Check(translate("Tomáš","English")=="Tomáš");
+Check(translate("pred ","English")+5+translate(" min","English")=="5 min ago");
+Check(translate("pred ","Slovak")+5+translate(" min","Slovak")=="pred 5 min");
+Check(translate("Prepoj účet cez /linkgame v Discorde","English")=="Link your account with /linkgame in Discord");
+Check(translate("Priprav funkčný návratový portál","English")=="Prepare a working return portal");
+Check(translate("Priprav Poison resistance mead a rozdeľ aspoň 2 hotové dávky každému. Nestačí mead base; musí prejsť fermentáciou. Vypiť ešte pred otrávením, nie až ako liek na existujúci jed.","English").StartsWith("Prepare Poison resistance mead and give each player at least 2 finished doses."));
+var beforeLanguageChange=QuestJson.Write(client.Snapshot);
+foreach(var quest in client.Snapshot.quests) { translate(quest.title,"English");translate(quest.title,"Slovak"); }
+Check(QuestJson.Write(client.Snapshot)==beforeLanguageChange);
+Console.WriteLine("Quest descriptions, chapter translation, identity and progress preservation passed.");

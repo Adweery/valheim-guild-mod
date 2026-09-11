@@ -12,29 +12,29 @@ finish() {
       if [ -f "$BACKUP/files/$rel" ]; then cp -p "$BACKUP/files/$rel" "$GAME/$rel" || true
       else rm -f "$GAME/$rel"; fi
     done < "$BACKUP/changed.txt"
-    echo 'Instalacia zlyhala. Povodne subory boli obnovene zo zalohy.'
+    echo 'Installation failed. Original files were restored from the backup.'
   fi
   [ -z "$TEMP_DIR" ] || rm -rf "$TEMP_DIR"
-  if [ "$result" -ne 0 ]; then echo 'Nic dalsie nespustaj. Posli Adamovi chybu uvedenu vyssie.'; fi
-  if [ -t 0 ]; then read -r -p 'Stlac Enter pre zavretie.' _ || true; fi
+  if [ "$result" -ne 0 ]; then echo 'Installation failed. Report the error above at https://github.com/Adweery/valheim-guild-mod/issues'; fi
+  if [ -t 0 ]; then read -r -p 'Press Enter to close.' _ || true; fi
   exit "$result"
 }
 trap finish EXIT
 fail() { echo "$*" >&2; exit 1; }
 fetch() { /usr/bin/curl --fail --location --silent --show-error --proto '=https' --proto-redir '=https' --connect-timeout 15 --max-time 180 --retry 2 "$1" -o "$2"; }
-verify() { [[ "$2" =~ ^[a-f0-9]{64}$ ]] || fail 'Neplatny kontrolny sucet.'; [ "$(/usr/bin/shasum -a 256 "$1" | cut -d ' ' -f 1)" = "$2" ] || fail 'Stiahnuty subor nepresiel kontrolou. Instalacia zastavena.'; }
+verify() { [[ "$2" =~ ^[a-f0-9]{64}$ ]] || fail 'Invalid checksum.'; [ "$(/usr/bin/shasum -a 256 "$1" | cut -d ' ' -f 1)" = "$2" ] || fail 'Downloaded file verification failed. Installation stopped.'; }
 field() { /usr/bin/plutil -extract "$1" raw -o - "$TEMP_DIR/latest.json"; }
 safe_zip() {
   /usr/bin/unzip -Z1 "$1" > "$TEMP_DIR/entries.txt"
-  [ "$(wc -l < "$TEMP_DIR/entries.txt")" -le 500 ] || fail 'Prilis vela suborov v baliku.'
+  [ "$(wc -l < "$TEMP_DIR/entries.txt")" -le 500 ] || fail 'Too many files in the archive.'
   while IFS= read -r entry; do
-    case "$entry" in /*|*\\*|../*|*/../*|*/..|*:*|*'//'*) fail 'Nebezpecna cesta v baliku.';; esac
+    case "$entry" in /*|*\\*|../*|*/../*|*/..|*:*|*'//'*) fail 'Unsafe path in the archive.';; esac
   done < "$TEMP_DIR/entries.txt"
-  if /usr/bin/zipinfo -l "$1" | /usr/bin/grep -q '^l'; then fail 'Balik obsahuje symbolicky odkaz.'; fi
+  if /usr/bin/zipinfo -l "$1" | /usr/bin/grep -q '^l'; then fail 'The archive contains a symbolic link.'; fi
 }
-[ "$(uname -s)" = Darwin ] || fail 'Tento instalator je pre macOS.'
-/usr/bin/pgrep -x Valheim >/dev/null && fail 'Najprv uplne vypni Valheim a potom spusti instalator znova.'
-/usr/bin/arch -x86_64 /usr/bin/true || fail 'Na tomto Macu je najprv potrebna Rosetta. Ozvi sa Adamovi.'
+[ "$(uname -s)" = Darwin ] || fail 'This installer is for macOS.'
+/usr/bin/pgrep -x Valheim >/dev/null && fail 'Close Valheim completely, then run the installer again.'
+/usr/bin/arch -x86_64 /usr/bin/true || fail 'Rosetta must be installed on this Mac before continuing.'
 if [ "$#" -gt 0 ]; then GAME="$1"; else
   STEAM="$HOME/Library/Application Support/Steam"
   CANDIDATES=()
@@ -48,33 +48,33 @@ if [ "$#" -gt 0 ]; then GAME="$1"; else
     done < <(/usr/bin/sed -nE 's/^[[:space:]]*"path"[[:space:]]*"([^"]*)".*/\1/p' "$STEAM/steamapps/libraryfolders.vdf")
   fi
   if [ "${#CANDIDATES[@]}" -eq 1 ]; then GAME="${CANDIDATES[0]}"; else
-    read -r -p 'Vloz cestu k priecinku, ktory obsahuje valheim.app: ' GAME
+    read -r -p 'Enter the path to the directory containing valheim.app: ' GAME
   fi
 fi
-[ -d "$GAME/valheim.app/Contents/MacOS" ] || fail 'V zvolenom priecinku nie je Valheim.'
+[ -d "$GAME/valheim.app/Contents/MacOS" ] || fail 'Valheim was not found in the selected directory.'
 GAME="$(cd "$GAME" && pwd -P)"
 TEMP_DIR="$(mktemp -d)"
-echo 'Stahujem aktualnu verziu Valheim Guild modu...'
+echo 'Downloading the latest Valheim Guild mod...'
 fetch "$BASE/releases/latest/download/latest.json" "$TEMP_DIR/latest.json"
-[ "$(field schema)" = 1 ] || fail 'Je potrebna nova verzia instalatora.'
+[ "$(field schema)" = 1 ] || fail 'Please download the latest installer version.'
 VERSION="$(field version)"
-[[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail 'Neplatna verzia.'
+[[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail 'Invalid version.'
 URL="$(field mod_url)"
-[ "$URL" = "$BASE/releases/download/v$VERSION/ValheimGuildTelemetry.zip" ] || fail 'Neocakavane miesto stahovania.'
+[ "$URL" = "$BASE/releases/download/v$VERSION/ValheimGuildTelemetry.zip" ] || fail 'Unexpected download location.'
 fetch "$URL" "$TEMP_DIR/mod.zip"; verify "$TEMP_DIR/mod.zip" "$(field mod_sha256)"; safe_zip "$TEMP_DIR/mod.zip"
 mkdir "$TEMP_DIR/mod" "$TEMP_DIR/stage"
-[ "$(/usr/bin/unzip -Z1 "$TEMP_DIR/mod.zip")" = ValheimGuildTelemetry.dll ] || fail 'Neocakavany obsah modu.'
+[ "$(/usr/bin/unzip -Z1 "$TEMP_DIR/mod.zip")" = ValheimGuildTelemetry.dll ] || fail 'Unexpected mod archive contents.'
 /usr/bin/unzip -q "$TEMP_DIR/mod.zip" -d "$TEMP_DIR/mod"
 verify "$TEMP_DIR/mod/ValheimGuildTelemetry.dll" "$(field dll_sha256)"
 if [ -f "$GAME/BepInEx/core/BepInEx.dll" ]; then
   verify "$GAME/BepInEx/core/BepInEx.dll" "$(field loader_core_sha256)"
-  [ -f "$GAME/start_game_bepinex.sh" ] && [ -f "$GAME/doorstop_libs/libdoorstop_x64.dylib" ] || fail 'BepInEx nie je kompletne nastaveny pre Mac. Ozvi sa Adamovi.'
+  [ -f "$GAME/start_game_bepinex.sh" ] && [ -f "$GAME/doorstop_libs/libdoorstop_x64.dylib" ] || fail 'BepInEx setup for Mac is incomplete. Report this in a GitHub issue.'
 else
   for name in BepInEx doorstop_libs start_game_bepinex.sh; do
-    [ ! -e "$GAME/$name" ] || fail 'Nasiel som inu alebo nekompletnu instalaciu modov. Ozvi sa Adamovi.'
+    [ ! -e "$GAME/$name" ] || fail 'An unrecognized or incomplete mod loader was found. Report this in a GitHub issue.'
   done
   LOADER="$(field loader_url)"
-  [ "$LOADER" = 'https://thunderstore.io/package/download/denikson/BepInExPack_Valheim/5.4.2350/' ] || fail 'Neocakavany zdroj BepInEx.'
+  [ "$LOADER" = 'https://thunderstore.io/package/download/denikson/BepInExPack_Valheim/5.4.2350/' ] || fail 'Unexpected BepInEx download source.'
   fetch "$LOADER" "$TEMP_DIR/loader.zip"; verify "$TEMP_DIR/loader.zip" "$(field loader_sha256)"; safe_zip "$TEMP_DIR/loader.zip"
   /usr/bin/unzip -q "$TEMP_DIR/loader.zip" 'BepInExPack_Valheim/*' -d "$TEMP_DIR/loader"
   PACK="$TEMP_DIR/loader/BepInExPack_Valheim"
@@ -93,15 +93,15 @@ printf '%s\n' "$VERSION" > "$TEMP_DIR/stage/valheim-guild-version.txt"
 # Validate the entire destination before touching files, including symlinked ancestors.
 (cd "$TEMP_DIR/stage" && find . -type f) | sed 's|^./||' > "$TEMP_DIR/targets.txt"
 while IFS= read -r rel; do
-  [ ! -e "$GAME/$rel" ] || [ -f "$GAME/$rel" ] || fail 'Cielovy subor je priecinok. Instalacia zastavena.'
+  [ ! -e "$GAME/$rel" ] || [ -f "$GAME/$rel" ] || fail 'A destination file is a directory. Installation stopped.'
   check="$GAME/$rel"
   while [ "$check" != "$GAME" ]; do
-    [ ! -L "$check" ] || fail 'Ciel obsahuje symbolicky odkaz. Instalacia zastavena.'
+    [ ! -L "$check" ] || fail 'The destination contains a symbolic link. Installation stopped.'
     check="$(dirname "$check")"
   done
 done < "$TEMP_DIR/targets.txt"
-/usr/bin/pgrep -x Valheim >/dev/null && fail 'Hra sa medzitym spustila. Najprv ju vypni.'
-[ ! -L "$GAME/ValheimGuildBackups" ] || fail 'Priecinok zaloh je symbolicky odkaz.'
+/usr/bin/pgrep -x Valheim >/dev/null && fail 'Valheim started during installation. Close the game first.'
+[ ! -L "$GAME/ValheimGuildBackups" ] || fail 'The backup directory is a symbolic link.'
 BACKUP="$GAME/ValheimGuildBackups/$(date +%Y%m%d-%H%M%S)-$$"
 mkdir -p "$BACKUP/files"; : > "$BACKUP/changed.txt"
 while IFS= read -r rel; do
@@ -115,6 +115,6 @@ while IFS= read -r rel; do
 done < "$TEMP_DIR/targets.txt"
 chmod u+x "$GAME/Start-Valheim-Guild-Mac.command" "$GAME/start_game_bepinex.sh"
 COMMITTING=0
-echo "Hotovo. Nainstalovana verzia: $VERSION"
-echo "Hru spustaj cez: $GAME/Start-Valheim-Guild-Mac.command"
-echo 'XP, svety a prepojenie uctu zostali zachovane.'
+echo "Done. Installed version: $VERSION"
+echo "Launch the game using: $GAME/Start-Valheim-Guild-Mac.command"
+echo 'XP, worlds and account linking have been preserved.'

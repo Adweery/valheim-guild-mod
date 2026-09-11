@@ -9,6 +9,7 @@ namespace ValheimGuildTelemetry;
 
 public partial class Plugin
 {
+    private static string L(string text) => GuildText.Translate(text, Localization.instance?.GetSelectedLanguage());
     internal static bool JournalOpen;
     internal static int BlockMenuThroughFrame=-1;
     internal static bool SuppressMenu => JournalOpen || Time.frameCount<=BlockMenuThroughFrame;
@@ -101,10 +102,10 @@ public partial class Plugin
     }
     private string StatusText()
     {
-        if(!string.IsNullOrEmpty(quests.Client.Status)) return quests.Client.Status;
-        return quests.Client.Stale(Time.realtimeSinceStartup,DateTimeOffset.UtcNow.ToUnixTimeSeconds()) ? "Staršie údaje • čakám na synchronizáciu" : "Synchronizované s guildou";
+        if(!string.IsNullOrEmpty(quests.Client.Status)) return L(quests.Client.Status);
+        return quests.Client.Stale(Time.realtimeSinceStartup,DateTimeOffset.UtcNow.ToUnixTimeSeconds()) ? L("Staršie údaje • čakám na synchronizáciu") : L("Synchronizované s guildou");
     }
-    private static string Progress(GuildQuest q) => q.completed ? "Dokončené" : q.automatic ? q.current+" / "+q.target : "Ručné potvrdenie v Discorde";
+    private static string Progress(GuildQuest q) => q.completed ? L("Dokončené") : q.automatic ? q.current+" / "+q.target : L("Ručné potvrdenie v Discorde");
     private void OnGUI()
     {
         if(quests==null || !CanShowQuests()) return;
@@ -132,7 +133,7 @@ public partial class Plugin
             {
                 float width=Math.Min(560,Screen.width/scale-32);
                 GUILayout.BeginArea(new Rect((Screen.width/scale-width)/2,80,width,100),panel);
-                GUILayout.Label("QUEST DOKONČENÝ",section);GUILayout.Label(toast,body);GUILayout.EndArea();
+                GUILayout.Label(L("QUEST DOKONČENÝ"),section);GUILayout.Label(L(toast),body);GUILayout.EndArea();
             }
         }
         finally { GUI.matrix=previous; }
@@ -143,7 +144,7 @@ public partial class Plugin
         float y=Math.Min(245,Math.Max(80,Screen.height/Scale()-height-20));
         GUILayout.BeginArea(new Rect(screenWidth-width-18,y,width,height),panel);
         GUILayout.Label("RAVENSOATH",heading);
-        GUILayout.Label(journalKey.Value+" / F8 denník   •   "+trackerKey.Value+" skryť",muted);
+        GUILayout.Label(journalKey.Value+L(" / F8 denník   •   ")+trackerKey.Value+L(" skryť"),muted);
         GUILayout.Space(6);
         var snapshot=quests.Client.Snapshot;
         if(snapshot==null) GUILayout.Label(StatusText(),body);
@@ -151,10 +152,10 @@ public partial class Plugin
         {
             GUILayout.Label(snapshot.profile_name+" • "+snapshot.renown+" Renown",section);
             var selected=snapshot.quests.Where(q=>pinned.Contains(q.id) && !q.completed).Take(5).ToList();
-            if(selected.Count==0) GUILayout.Label("Žiadne sledované questy. Otvor denník a pripni si cieľ.",body);
+            if(selected.Count==0) GUILayout.Label(L("Žiadne sledované questy. Otvor denník a pripni si cieľ."),body);
             foreach(var q in selected)
             {
-                GUILayout.Space(8);GUILayout.Label(q.title,body);
+                GUILayout.Space(8);GUILayout.Label(L(q.title),body);
                 GUILayout.Label(Progress(q)+"   •   +"+q.xp+" Renown",muted);
             }
             GUILayout.FlexibleSpace();GUILayout.Label(StatusText(),muted);
@@ -163,52 +164,52 @@ public partial class Plugin
     }
     private void DrawJournal(int id)
     {
-        GUILayout.BeginHorizontal();GUILayout.Label("DENNÍK GUILDY",heading);
-        if(GUILayout.Button("Zavrieť ["+journalKey.Value+"]",button,GUILayout.Width(145))) { GUI.FocusControl(null);CloseJournal(); }
+        GUILayout.BeginHorizontal();GUILayout.Label(L("DENNÍK GUILDY"),heading);
+        if(GUILayout.Button(L("Zavrieť [")+journalKey.Value+"]",button,GUILayout.Width(145))) { GUI.FocusControl(null);CloseJournal(); }
         GUILayout.EndHorizontal();
         GUILayout.BeginHorizontal();
-        if(GUILayout.Button("Questy",button)) showSupplies=false;
-        if(GUILayout.Button("Zásoby a výbava",button)) showSupplies=true;
+        if(GUILayout.Button(L("Questy"),button)) showSupplies=false;
+        if(GUILayout.Button(L("Zásoby a výbava"),button)) showSupplies=true;
         GUILayout.EndHorizontal();
         if(showSupplies) { DrawSupplies();GUI.DragWindow(new Rect(0,0,journalRect.width-160,40));return; }
         GUILayout.Label(StatusText(),muted);
         var snapshot=quests.Client.Snapshot;
-        if(snapshot==null) { GUILayout.Label("Questy sa načítajú po prepojení herného účtu s Discordom.",body);return; }
-        GUILayout.Label(snapshot.profile_name+" • "+snapshot.class_name+" • Level "+snapshot.level+" • "+snapshot.renown+" Renown",section);
+        if(snapshot==null) { GUILayout.Label(L("Questy sa načítajú po prepojení herného účtu s Discordom."),body);return; }
+        GUILayout.Label(snapshot.profile_name+" • "+snapshot.class_name+L(" • Level ")+snapshot.level+" • "+snapshot.renown+" Renown",section);
         GUILayout.BeginHorizontal();
-        if(GUILayout.Button(chapter=="Všetky" ? "Kapitola: všetky" : chapter,button))
+        if(GUILayout.Button(chapter=="Všetky" ? L("Kapitola: všetky") : L(chapter),button))
         {
             var names=new List<string>{"Všetky"};names.AddRange(snapshot.quests.Select(q=>q.chapter).Distinct().OrderBy(x=>x));
             chapter=names[(names.IndexOf(chapter)+1)%names.Count];scroll=Vector2.zero;
         }
-        if(GUILayout.Button(showCompleted?"Dokončené":"Aktívne",button,GUILayout.Width(110))) { showCompleted=!showCompleted;scroll=Vector2.zero; }
-        if(GUILayout.Button(trackerEnabled.Value?"Skryť panel":"Zobraziť panel",button,GUILayout.Width(115))) trackerEnabled.Value=!trackerEnabled.Value;
+        if(GUILayout.Button(showCompleted?L("Dokončené"):L("Aktívne"),button,GUILayout.Width(110))) { showCompleted=!showCompleted;scroll=Vector2.zero; }
+        if(GUILayout.Button(trackerEnabled.Value?L("Skryť panel"):L("Zobraziť panel"),button,GUILayout.Width(115))) trackerEnabled.Value=!trackerEnabled.Value;
         GUILayout.EndHorizontal();
-        if(GUILayout.Button(autoTrack.Value ? "Automatický výber cieľov: zapnutý" : "Zapnúť automatický výber cieľov",button))
+        if(GUILayout.Button(autoTrack.Value ? L("Automatický výber cieľov: zapnutý") : L("Zapnúť automatický výber cieľov"),button))
         { autoTrack.Value=!autoTrack.Value;lastQuestSnapshot=null; }
         var filtered=snapshot.quests.Where(q=>q.completed==showCompleted && (chapter=="Všetky" || q.chapter==chapter)).ToList();
         var existing=snapshot.quests.Select(q=>q.id).ToHashSet();
         pinned.RemoveWhere(x=>!existing.Contains(x));
-        GUILayout.Label("Sledované: "+pinned.Count+"/5 • ručné úlohy potvrdíš cez /complete v Discorde",muted);
+        GUILayout.Label(L("Sledované: ")+pinned.Count+L("/5 • ručné úlohy potvrdíš cez /complete v Discorde"),muted);
         scroll=GUILayout.BeginScrollView(scroll);
         foreach(var q in filtered)
         {
             GUILayout.BeginVertical(GUI.skin.box);
-            GUILayout.BeginHorizontal();GUILayout.Label(q.title,section);
+            GUILayout.BeginHorizontal();GUILayout.Label(L(q.title),section);
             bool selected=pinned.Contains(q.id);
             bool old=GUI.enabled;GUI.enabled=!q.completed && (selected || pinned.Count<5);
-            if(GUILayout.Button(selected?"Odopnúť":"Sledovať",button,GUILayout.Width(95)))
+            if(GUILayout.Button(selected?L("Odopnúť"):L("Sledovať"),button,GUILayout.Width(95)))
             { autoTrack.Value=false;if(selected) pinned.Remove(q.id);else pinned.Add(q.id);SavePins(); }
             GUI.enabled=old;GUILayout.EndHorizontal();
-            GUILayout.Label(q.chapter+" • "+q.owner+" • #"+q.id,muted);
+            GUILayout.Label(L(q.chapter)+" • "+L(q.owner)+" • #"+q.id,muted);
             GUILayout.Label(Progress(q)+" • +"+q.xp+" Renown",body);
-            if(!string.IsNullOrEmpty(q.assessment)) GUILayout.Label(q.assessment,muted);
-            if(!string.IsNullOrEmpty(q.note)) GUILayout.Label(q.note,body);
+            if(!string.IsNullOrEmpty(q.assessment)) GUILayout.Label(L(q.assessment),muted);
+            if(!string.IsNullOrEmpty(q.note)) GUILayout.Label(L(q.note),body);
             GUILayout.EndVertical();GUILayout.Space(5);
         }
-        if(filtered.Count==0) GUILayout.Label("V tomto výbere nie sú žiadne questy.",body);
+        if(filtered.Count==0) GUILayout.Label(L("V tomto výbere nie sú žiadne questy."),body);
         GUILayout.EndScrollView();
-        if(snapshot.truncated) GUILayout.Label("Ďalšie questy sú dostupné cez Discord /quests.",muted);
+        if(snapshot.truncated) GUILayout.Label(L("Ďalšie questy sú dostupné cez Discord /quests."),muted);
         GUI.DragWindow(new Rect(0,0,journalRect.width-160,40));
     }
 }

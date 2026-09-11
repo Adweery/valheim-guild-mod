@@ -3,7 +3,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <AssemblyName>ValheimGuildTelemetry</AssemblyName>
-    <Version>1.3.2</Version>
+    <Version>1.3.3</Version>
     <GameReferences Condition="'$(GameReferences)' == ''">../../../../work/server-inspection</GameReferences>
     <LoaderReferences Condition="'$(LoaderReferences)' == ''">../../../../work/mod-build/bepinex/BepInExPack_Valheim/BepInEx/core</LoaderReferences>
   </PropertyGroup>
@@ -20,4 +20,4 @@
     <Reference Include="UnityEngine.TextRenderingModule"><HintPath>$(GameReferences)/UnityEngine.TextRenderingModule.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="UnityEngine.InputLegacyModule"><HintPath>$(GameReferences)/UnityEngine.InputLegacyModule.dll</HintPath><Private>false</Private></Reference>
   </ItemGroup>
-</Project>
+<ItemGroup><EmbeddedResource Include="translations.json" LogicalName="ValheimGuildTelemetry.translations.json" /></ItemGroup></Project>

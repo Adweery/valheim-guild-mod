@@ -7,7 +7,7 @@ $Backup = $null
 $Committing = $false
 
 function Download-File([string]$Url, [string]$Path) {
-    if (-not $Url.StartsWith('https://')) { throw 'Neplatna adresa stahovania.' }
+    if (-not $Url.StartsWith('https://')) { throw 'Invalid download URL.' }
     Invoke-WebRequest -UseBasicParsing -Uri $Url -OutFile $Path -TimeoutSec 180
 }
 function Assert-Hash([string]$Path, [string]$Expected) {
@@ -16,26 +16,26 @@ function Assert-Hash([string]$Path, [string]$Expected) {
     try { $actual = [BitConverter]::ToString($algorithm.ComputeHash($stream)).Replace('-', '').ToLowerInvariant() }
     finally { $stream.Dispose(); $algorithm.Dispose() }
     if ($Expected -notmatch '^[a-f0-9]{64}$' -or $actual -ne $Expected) {
-        throw 'Subor nepresiel kontrolou. Instalacia zastavena.'
+        throw 'File verification failed. Installation stopped.'
     }
 }
 function Assert-GameStopped {
-    if (Get-Process -Name valheim -ErrorAction SilentlyContinue) { throw 'Najprv uplne vypni Valheim a spusti instalator znova.' }
+    if (Get-Process -Name valheim -ErrorAction SilentlyContinue) { throw 'Close Valheim completely, then run the installer again.' }
 }
 function Expand-SafeZip([string]$Archive, [string]$Destination) {
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $zip = [IO.Compression.ZipFile]::OpenRead($Archive)
     try {
-        if ($zip.Entries.Count -gt 500) { throw 'Prilis vela suborov v baliku.' }
+        if ($zip.Entries.Count -gt 500) { throw 'Too many files in the archive.' }
         $size = 0L
         foreach ($entry in $zip.Entries) {
             $name = $entry.FullName.Replace('\', '/')
             if ($name.StartsWith('/') -or $name.Contains(':') -or $name -match '(^|/)\.\.(/|$)' -or (($entry.ExternalAttributes -shr 16) -band 0xF000) -eq 0xA000) {
-                throw 'Nebezpecna cesta v baliku.'
+                throw 'Unsafe path in the archive.'
             }
             $size += $entry.Length
         }
-        if ($size -gt 100MB) { throw 'Prilis velky balik.' }
+        if ($size -gt 100MB) { throw 'The archive is too large.' }
     } finally { $zip.Dispose() }
     [IO.Compression.ZipFile]::ExtractToDirectory($Archive, $Destination)
 }
@@ -43,7 +43,7 @@ function Assert-NoLink([string]$Path) {
     while ($Path -and $Path -ne $GamePath) {
         if (Test-Path -LiteralPath $Path) {
             if ((Get-Item -LiteralPath $Path -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) {
-                throw 'Ciel obsahuje odkaz na iny priecinok. Instalacia zastavena.'
+                throw 'The destination redirects to another directory. Installation stopped.'
             }
         }
         $Path = Split-Path -Parent $Path
@@ -72,29 +72,29 @@ try {
         else {
             Add-Type -AssemblyName System.Windows.Forms
             $picker = New-Object System.Windows.Forms.FolderBrowserDialog
-            $picker.Description = 'Vyber priecinok Valheim, v ktorom je valheim.exe'
-            if ($picker.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK) { throw 'Instalacia zrusena.' }
+            $picker.Description = 'Select the Valheim folder containing valheim.exe'
+            if ($picker.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK) { throw 'Installation cancelled.' }
             $GamePath = $picker.SelectedPath
             $picker.Dispose()
         }
     }
     $GamePath = [IO.Path]::GetFullPath($GamePath).TrimEnd('\', '/')
-    if (-not (Test-Path -LiteralPath (Join-Path $GamePath 'valheim.exe'))) { throw 'V tomto priecinku nie je Valheim.' }
+    if (-not (Test-Path -LiteralPath (Join-Path $GamePath 'valheim.exe'))) { throw 'Valheim was not found in this directory.' }
     New-Item -ItemType Directory -Path $TempDir | Out-Null
-    Write-Host 'Stahujem aktualnu verziu Valheim Guild modu...'
+    Write-Host 'Downloading the latest Valheim Guild mod...'
     $manifestPath = Join-Path $TempDir 'latest.json'
     Download-File "$BaseUrl/releases/latest/download/latest.json" $manifestPath
     $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
-    if ($manifest.schema -ne 1) { throw 'Je potrebna nova verzia instalatora.' }
+    if ($manifest.schema -ne 1) { throw 'Please download the latest installer version.' }
     $version = [string]$manifest.version
-    if ($version -notmatch '^\d+\.\d+\.\d+$' -or $manifest.mod_url -ne "$BaseUrl/releases/download/v$version/ValheimGuildTelemetry.zip") { throw 'Neocakavane miesto stahovania.' }
+    if ($version -notmatch '^\d+\.\d+\.\d+$' -or $manifest.mod_url -ne "$BaseUrl/releases/download/v$version/ValheimGuildTelemetry.zip") { throw 'Unexpected download location.' }
     $modZip = Join-Path $TempDir 'mod.zip'
     Download-File $manifest.mod_url $modZip
     Assert-Hash $modZip $manifest.mod_sha256
     $modDir = Join-Path $TempDir 'mod'
     Expand-SafeZip $modZip $modDir
     $modFiles = @(Get-ChildItem -LiteralPath $modDir -Recurse -File)
-    if ($modFiles.Count -ne 1 -or $modFiles[0].FullName -ne (Join-Path $modDir 'ValheimGuildTelemetry.dll')) { throw 'Neocakavany obsah modu.' }
+    if ($modFiles.Count -ne 1 -or $modFiles[0].FullName -ne (Join-Path $modDir 'ValheimGuildTelemetry.dll')) { throw 'Unexpected mod archive contents.' }
     Assert-Hash $modFiles[0].FullName $manifest.dll_sha256
     $stage = Join-Path $TempDir 'stage'
     New-Item -ItemType Directory -Path $stage | Out-Null
@@ -102,13 +102,13 @@ try {
     if (Test-Path -LiteralPath $core) {
         Assert-Hash $core $manifest.loader_core_sha256
         foreach ($name in @('winhttp.dll', 'doorstop_config.ini')) {
-            if (-not (Test-Path -LiteralPath (Join-Path $GamePath $name))) { throw 'BepInEx nie je kompletne nastaveny pre Windows. Ozvi sa Adamovi.' }
+            if (-not (Test-Path -LiteralPath (Join-Path $GamePath $name))) { throw 'BepInEx setup for Windows is incomplete. Report this in a GitHub issue.' }
         }
     } else {
         foreach ($name in @('BepInEx', 'winhttp.dll', 'doorstop_config.ini')) {
-            if (Test-Path -LiteralPath (Join-Path $GamePath $name)) { throw 'Nasiel som inu alebo nekompletnu instalaciu modov. Ozvi sa Adamovi.' }
+            if (Test-Path -LiteralPath (Join-Path $GamePath $name)) { throw 'An unrecognized or incomplete mod loader was found. Report this in a GitHub issue.' }
         }
-        if ($manifest.loader_url -ne 'https://thunderstore.io/package/download/denikson/BepInExPack_Valheim/5.4.2350/') { throw 'Neocakavany zdroj BepInEx.' }
+        if ($manifest.loader_url -ne 'https://thunderstore.io/package/download/denikson/BepInExPack_Valheim/5.4.2350/') { throw 'Unexpected BepInEx download source.' }
         $loaderZip = Join-Path $TempDir 'loader.zip'
         Download-File $manifest.loader_url $loaderZip
         Assert-Hash $loaderZip $manifest.loader_sha256
@@ -124,7 +124,7 @@ try {
     $files = @(Get-ChildItem -LiteralPath $stage -Recurse -File)
     foreach ($file in $files) {
         $target = Join-Path $GamePath $file.FullName.Substring($stage.Length + 1)
-        if ((Test-Path -LiteralPath $target) -and -not (Test-Path -LiteralPath $target -PathType Leaf)) { throw 'Cielovy subor je priecinok. Instalacia zastavena.' }
+        if ((Test-Path -LiteralPath $target) -and -not (Test-Path -LiteralPath $target -PathType Leaf)) { throw 'A destination file is a directory. Installation stopped.' }
         Assert-NoLink $target
     }
     Assert-NoLink (Join-Path $GamePath 'ValheimGuildBackups')
@@ -150,8 +150,8 @@ try {
     }
     $Changed | Set-Content -LiteralPath (Join-Path $Backup 'changed.txt')
     $Committing = $false
-    Write-Host "Hotovo. Nainstalovana verzia: $version"
-    Write-Host 'Valheim teraz spusti normalne cez Steam. XP a prepojenie uctu zostali zachovane.'
+    Write-Host "Done. Installed version: $version"
+    Write-Host 'Launch Valheim normally through Steam. XP and account linking have been preserved.'
     exit 0
 } catch {
     if ($Committing) {
@@ -161,10 +161,10 @@ try {
             if (Test-Path -LiteralPath $saved) { Copy-Item -LiteralPath $saved -Destination $target -Force -ErrorAction Continue }
             else { Remove-Item -LiteralPath $target -Force -ErrorAction SilentlyContinue }
         }
-        Write-Host 'Povodne subory boli obnovene zo zalohy.'
+        Write-Host 'Original files were restored from the backup.'
     }
     Write-Host $_.Exception.Message -ForegroundColor Red
-    Write-Host 'Posli Adamovi tuto chybu. Instalacia sa nedokoncila.'
+    Write-Host 'Installation did not finish. Report the error at https://github.com/Adweery/valheim-guild-mod/issues'
     exit 1
 } finally {
     if (Test-Path -LiteralPath $TempDir) { Remove-Item -LiteralPath $TempDir -Recurse -Force -ErrorAction SilentlyContinue }

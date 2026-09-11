@@ -1,0 +1,498 @@
+[
+  {
+    "sk": "DENNÍK GUILDY",
+    "en": "GUILD JOURNAL"
+  },
+  {
+    "sk": "Staršie údaje • čakám na synchronizáciu",
+    "en": "Older data • waiting for synchronization"
+  },
+  {
+    "sk": "Synchronizované s guildou",
+    "en": "Synchronized with the guild"
+  },
+  {
+    "sk": "Dokončené",
+    "en": "Completed"
+  },
+  {
+    "sk": "Ručné potvrdenie v Discorde",
+    "en": "Confirm manually in Discord"
+  },
+  {
+    "sk": "QUEST DOKONČENÝ",
+    "en": "QUEST COMPLETED"
+  },
+  {
+    "sk": " / F8 denník   •   ",
+    "en": " / F8 journal   •   "
+  },
+  {
+    "sk": " skryť",
+    "en": " hide"
+  },
+  {
+    "sk": "Žiadne sledované questy. Otvor denník a pripni si cieľ.",
+    "en": "No tracked quests. Open the journal and pin an objective."
+  },
+  {
+    "sk": "Zavrieť [",
+    "en": "Close ["
+  },
+  {
+    "sk": "Questy",
+    "en": "Quests"
+  },
+  {
+    "sk": "Zásoby a výbava",
+    "en": "Supplies and equipment"
+  },
+  {
+    "sk": "Questy sa načítajú po prepojení herného účtu s Discordom.",
+    "en": "Quests will load after linking your game account to Discord."
+  },
+  {
+    "sk": "Kapitola: všetky",
+    "en": "Chapter: all"
+  },
+  {
+    "sk": "Aktívne",
+    "en": "Active"
+  },
+  {
+    "sk": "Skryť panel",
+    "en": "Hide tracker"
+  },
+  {
+    "sk": "Zobraziť panel",
+    "en": "Show tracker"
+  },
+  {
+    "sk": "Automatický výber cieľov: zapnutý",
+    "en": "Automatic quest tracking: on"
+  },
+  {
+    "sk": "Zapnúť automatický výber cieľov",
+    "en": "Enable automatic quest tracking"
+  },
+  {
+    "sk": "Sledované: ",
+    "en": "Tracked: "
+  },
+  {
+    "sk": "/5 • ručné úlohy potvrdíš cez /complete v Discorde",
+    "en": "/5 • confirm manual quests with /complete in Discord"
+  },
+  {
+    "sk": "Odopnúť",
+    "en": "Unpin"
+  },
+  {
+    "sk": "Sledovať",
+    "en": "Track"
+  },
+  {
+    "sk": "V tomto výbere nie sú žiadne questy.",
+    "en": "No quests match this selection."
+  },
+  {
+    "sk": "Ďalšie questy sú dostupné cez Discord /quests.",
+    "en": "More quests are available through Discord /quests."
+  },
+  {
+    "sk": "Čakám na questy zo servera…",
+    "en": "Waiting for quests from the server..."
+  },
+  {
+    "sk": "Bot je dočasne nedostupný",
+    "en": "The bot is temporarily unavailable"
+  },
+  {
+    "sk": "Prepoj účet cez /linkgame v Discorde",
+    "en": "Link your account with /linkgame in Discord"
+  },
+  {
+    "sk": "Starý záznam zásob sa nedal načítať. Otvor truhly znova.",
+    "en": "Could not load the saved supplies. Scan or open the chests again."
+  },
+  {
+    "sk": "Sken zásob sa zopakuje pri ďalšom obnovení.",
+    "en": "The supplies scan will retry on the next refresh."
+  },
+  {
+    "sk": "Zásoby sa nepodarilo uložiť na disk.",
+    "en": "Could not save supplies to disk."
+  },
+  {
+    "sk": "pred chvíľou",
+    "en": "just now"
+  },
+  {
+    "sk": "pred ",
+    "en": ""
+  },
+  {
+    "sk": " min",
+    "en": " min ago"
+  },
+  {
+    "sk": " h",
+    "en": " h ago"
+  },
+  {
+    "sk": "OSOBNÁ PRÍPRAVA A ZÁSOBY",
+    "en": "PERSONAL PREPARATION AND SUPPLIES"
+  },
+  {
+    "sk": "V dosahu sa obsah obnovuje automaticky z hernej synchronizácie. Vzdialené truhly ostávajú starším záznamom. Cache je lokálna pre postavu a svet.",
+    "en": "Nearby contents refresh through game synchronization. Distant chests remain historical records. The cache is local to this character and world."
+  },
+  {
+    "sk": "Rádius: ",
+    "en": "Radius: "
+  },
+  {
+    "sk": " m • prístupné truhly: ",
+    "en": " m • accessible chests: "
+  },
+  {
+    "sk": " • limit 100 najbližších",
+    "en": " • limited to the nearest 100"
+  },
+  {
+    "sk": "Čakám na inventár postavy…",
+    "en": "Waiting for the character inventory..."
+  },
+  {
+    "sk": "Vyhľadávanie podľa názvu • tlačidlami −/+ nastav cieľový počet do batoha",
+    "en": "Search by name • use -/+ to set a carried-item target"
+  },
+  {
+    "sk": "Predchádzajúce",
+    "en": "Previous"
+  },
+  {
+    "sk": "Ďalšie",
+    "en": "Next"
+  },
+  {
+    "sk": "Cieľ: ",
+    "en": "Target: "
+  },
+  {
+    "sk": "Pri tebe: ",
+    "en": "Carried: "
+  },
+  {
+    "sk": " • V záznamoch truhlíc: ",
+    "en": " • Recorded in chests: "
+  },
+  {
+    "sk": "Nasadené • kvalita ",
+    "en": "Equipped • quality "
+  },
+  {
+    "sk": "Cieľový počet máš pri sebe",
+    "en": "You are carrying the target amount"
+  },
+  {
+    "sk": "Chýba pribaliť ",
+    "en": "Still need to pack "
+  },
+  {
+    "sk": ". Over zásoby v truhlách skôr, než vyrobíš ďalšie.",
+    "en": ". Check chest supplies before crafting more."
+  },
+  {
+    "sk": "Chýba získať alebo vyrobiť ",
+    "en": "Still need to gather or craft "
+  },
+  {
+    "sk": " • v dosahu",
+    "en": " • in range"
+  },
+  {
+    "sk": " • starší záznam",
+    "en": " • historical record"
+  },
+  {
+    "sk": "Inventár je prázdny. Zásoby sa pridajú po otvorení truhlice.",
+    "en": "No matching items. Scan or open accessible chests to record supplies."
+  },
+  {
+    "sk": "Splnenie uložené",
+    "en": "Completion recorded"
+  },
+  {
+    "sk": "Overené zo sveta",
+    "en": "Verified from world state"
+  },
+  {
+    "sk": "Zaznamenaný progres; staršia história nemusí byť úplná",
+    "en": "Recorded progress; earlier history may be incomplete"
+  },
+  {
+    "sk": "Nedá sa overiť automaticky; potvrď cez /complete",
+    "en": "Cannot verify automatically; confirm with /complete"
+  },
+  {
+    "sk": "Tím",
+    "en": "Team"
+  },
+  {
+    "sk": "Nájsť miesto pre main base",
+    "en": "Find a main base location"
+  },
+  {
+    "sk": "Založiť main base",
+    "en": "Establish the main base"
+  },
+  {
+    "sk": "Preniesť Black Forest resources",
+    "en": "Transport Black Forest resources"
+  },
+  {
+    "sk": "Zabiť Eikthyra",
+    "en": "Defeat Eikthyr"
+  },
+  {
+    "sk": "Zabiť Eldera",
+    "en": "Defeat The Elder"
+  },
+  {
+    "sk": "Nájsť Swamp",
+    "en": "Discover the Swamp"
+  },
+  {
+    "sk": "Založiť Swamp outpost",
+    "en": "Establish a Swamp outpost"
+  },
+  {
+    "sk": "Postav crafting hall",
+    "en": "Build a crafting hall"
+  },
+  {
+    "sk": "Postav storage",
+    "en": "Build a storage area"
+  },
+  {
+    "sk": "Priprav dock",
+    "en": "Build a dock"
+  },
+  {
+    "sk": "Tankuj Eikthyra",
+    "en": "Tank Eikthyr"
+  },
+  {
+    "sk": "Scoutni pobrežie",
+    "en": "Scout the coast"
+  },
+  {
+    "sk": "Nájdi Black Forest",
+    "en": "Discover the Black Forest"
+  },
+  {
+    "sk": "Vyber miesto pre main base",
+    "en": "Choose a main base location"
+  },
+  {
+    "sk": "Označ 5 dôležitých lokácií",
+    "en": "Mark 5 important locations"
+  },
+  {
+    "sk": "Presuň zásoby",
+    "en": "Move supplies"
+  },
+  {
+    "sk": "Organizuj storage",
+    "en": "Organize storage"
+  },
+  {
+    "sk": "Priprav arrows",
+    "en": "Prepare arrows"
+  },
+  {
+    "sk": "Priprav materiály na loď",
+    "en": "Prepare materials for a boat"
+  },
+  {
+    "sk": "Získaj prvý gear",
+    "en": "Get your first equipment"
+  },
+  {
+    "sk": "Rozbehni kitchen",
+    "en": "Set up a kitchen"
+  },
+  {
+    "sk": "Priprav food pre tím",
+    "en": "Prepare food for the team"
+  },
+  {
+    "sk": "Rozbehni mead zásoby",
+    "en": "Start a mead stockpile"
+  },
+  {
+    "sk": "Vyrob 100 šípov",
+    "en": "Craft 100 arrows"
+  },
+  {
+    "sk": "Vyrob 20 porcií jedla pri craftingu",
+    "en": "Craft 20 servings of food"
+  },
+  {
+    "sk": "Podieľaj sa na zabití 3 trollov",
+    "en": "Help defeat 3 trolls"
+  },
+  {
+    "sk": "Priprav výbavu celej partie na Swamp",
+    "en": "Prepare the party's equipment for the Swamp"
+  },
+  {
+    "sk": "Zabaľ jedlo pre všetkých štyroch",
+    "en": "Pack food for all four players"
+  },
+  {
+    "sk": "Priprav funkčný návratový portál",
+    "en": "Prepare a working return portal"
+  },
+  {
+    "sk": "Priprav štít a tupú zbraň do Swampu",
+    "en": "Prepare a shield and blunt weapon for the Swamp"
+  },
+  {
+    "sk": "Priprav motyku a suchú cestu pri outposte",
+    "en": "Prepare a hoe and a dry route by the outpost"
+  },
+  {
+    "sk": "Označ bezpečné miesto na vylodenie",
+    "en": "Mark a safe landing site"
+  },
+  {
+    "sk": "Označ prvú Sunken Crypt",
+    "en": "Mark the first Sunken Crypt"
+  },
+  {
+    "sk": "Priprav expedičnú loď a náhradný krompáč",
+    "en": "Prepare an expedition boat and spare pickaxe"
+  },
+  {
+    "sk": "Rozdeľ 8 hotových dávok proti jedu",
+    "en": "Distribute 8 finished poison resistance meads"
+  },
+  {
+    "sk": "Rozdeľ 8 hotových liečivých medovín",
+    "en": "Distribute 8 finished healing meads"
+  },
+  {
+    "sk": "Vyčisti prvú Sunken Crypt a vráť sa",
+    "en": "Clear the first Sunken Crypt and return"
+  },
+  {
+    "sk": "Dones prvých 30 kusov Scrap Iron do základne",
+    "en": "Bring the first 30 Scrap Iron to the base"
+  },
+  {
+    "sk": "Kapitola I - Nový svet",
+    "en": "Chapter I - A New World"
+  },
+  {
+    "sk": "Kapitola II - Do močiarov",
+    "en": "Chapter II - Into the Swamp"
+  },
+  {
+    "sk": "Tankuj bossa bez smrti.",
+    "en": "Tank a boss without dying."
+  },
+  {
+    "sk": "Preži fight ako posledný melee hráč.",
+    "en": "Survive a fight as the last melee player standing."
+  },
+  {
+    "sk": "Stealth kill silného nepriateľa.",
+    "en": "Kill a powerful enemy from stealth."
+  },
+  {
+    "sk": "Objav nový biome alebo významnú lokáciu ako prvý.",
+    "en": "Be the first to discover a new biome or important location."
+  },
+  {
+    "sk": "Boss final hit lukom.",
+    "en": "Land the final hit on a boss with a bow."
+  },
+  {
+    "sk": "Zachráň tím pomocou ranged/CC.",
+    "en": "Save the team with ranged attacks or crowd control."
+  },
+  {
+    "sk": "Priprav kompletný food/mead loadout pre partiu.",
+    "en": "Prepare a complete food and mead loadout for the party."
+  },
+  {
+    "sk": "Získaj prvý magic staff.",
+    "en": "Obtain your first magic staff."
+  },
+  {
+    "sk": "Každý: opravená a vylepšená trollia alebo bronzová výbava, vhodná zbraň a luk podľa role. Huso nesie štít a tupú zbraň. Železná výbava pred prvým vstupom nie je potrebná.",
+    "en": "Each player: repaired and upgraded troll or bronze equipment, a suitable weapon and a bow for their role. Huso carries a shield and blunt weapon. Iron equipment is not required before your first visit."
+  },
+  {
+    "sk": "Každý má 3 rozdielne jedlá dostupné z Meadows/Black Forest, aspoň 5 kusov každého. Odporúčanie: 2 jedlá na zdravie + 1 na výdrž; pohyblivé role môžu pomer otočiť. Pred vstupom sa najedzte a získajte Rested.",
+    "en": "Each player carries 3 different Meadows/Black Forest foods, at least 5 of each. Suggested balance: 2 health foods and 1 stamina food; mobile roles can reverse it. Eat and obtain Rested before entering."
+  },
+  {
+    "sk": "Doma pomenuj a otestuj portál, vezmi kompletný materiál na druhý a pracovný stôl. Druhý postav pri bezpečnom mieste vylodenia. Na vašom serveri je prenos kovov portálmi povolený.",
+    "en": "Name and test a portal at home. Bring all materials for a second portal and a workbench, and build it at a safe landing site. Your server allows metals through portals."
+  },
+  {
+    "sk": "Oprav a podľa možností vylepši štít a bronzový palcát. Pred výpravou si over blokovanie a parry; vyhýbaj sa boju s viacerými nepriateľmi naraz.",
+    "en": "Repair and, where possible, upgrade your shield and bronze mace. Practice blocking and parrying before leaving; avoid fighting several enemies at once."
+  },
+  {
+    "sk": "Vezmi motyku a uprav krátku bezpečnú trasu pri outposte, aby partia nemusela plávať pri ústupe. Nejde o vysušenie celého biomu.",
+    "en": "Bring a hoe and prepare a short safe route near the outpost so the party does not need to swim while retreating. You do not need to drain the entire biome."
+  },
+  {
+    "sk": "Nájdi susedné Meadows alebo Black Forest, označ ho na mape a ukáž partii trasu. Prvý výsadok robte cez deň, mimo Plains a hlbokej vody.",
+    "en": "Find neighboring Meadows or Black Forest, mark it on the map and show the party the route. Make the first landing during daylight, away from Plains and deep water."
+  },
+  {
+    "sk": "Nájdi a označ kryptu aj cestu späť k portálu. Swamp Key od Eldera treba na otvorenie krypty, nie na samotný vstup do biomu.",
+    "en": "Find and mark a crypt and the route back to the portal. The Elder's Swamp Key opens crypts; it is not required to enter the biome itself."
+  },
+  {
+    "sk": "Priprav a oprav aspoň Karve, nalož portálové zásoby a náhradný opravený krompáč. Antler pickaxe stačí na prvé Muddy scrap piles. Dohodni miesto bezpečného parkovania lode.",
+    "en": "Prepare and repair at least a Karve. Load portal supplies and a spare repaired pickaxe. An antler pickaxe is sufficient for the first Muddy scrap piles. Agree on a safe place to park the boat."
+  },
+  {
+    "sk": "Priprav Poison resistance mead a rozdeľ aspoň 2 hotové dávky každému. Nestačí mead base; musí prejsť fermentáciou. Vypiť ešte pred otrávením, nie až ako liek na existujúci jed.",
+    "en": "Prepare Poison resistance mead and give each player at least 2 finished doses. Mead base is not enough; it must be fermented. Drink before being poisoned, not as a cure for existing poison."
+  },
+  {
+    "sk": "Priprav Minor healing mead a daj aspoň 2 hotové dávky každému. Stamina mead je užitočná voliteľná rezerva.",
+    "en": "Prepare Minor healing mead and give each player at least 2 finished doses. Stamina mead is a useful optional reserve."
+  },
+  {
+    "sk": "Otvorte kryptu Swamp Key, postupujte po miestnostiach a vyťažte prvé Muddy scrap piles. Vráťte partiu aj korisť do outpostu. Tento quest potvrdíte ručne.",
+    "en": "Open the crypt with the Swamp Key, advance room by room and mine the first Muddy scrap piles. Return the party and loot to the outpost. Confirm this quest manually."
+  },
+  {
+    "sk": "Spoločný cieľ: dostať aspoň 30 kusov šrotu do hlavnej základne. Využite povolený prenos kovov portálom. Ďalší postup s iron výbavou a Bonemass bude samostatná kapitola.",
+    "en": "Shared objective: bring at least 30 Scrap Iron to the main base. Use the server's permitted metal transport through portals. Iron equipment and Bonemass progression will be a separate chapter."
+  },
+  {
+    "sk": "Porazte Eldera a vezmite Swamp Key. Boss quest sa potvrdí zo save sveta automaticky; samotné prevzatie kľúča si skontrolujte v inventári.",
+    "en": "Defeat The Elder and collect the Swamp Key. The boss quest is confirmed automatically from the world save; check that you actually picked up the key in your inventory."
+  },
+  {
+    "sk": "Prvú návštevu Swampu prepojeným hráčom s modom potvrdí bot automaticky. Pred návštevou vybavte zásoby, portál a ochranu proti jedu.",
+    "en": "The bot automatically confirms the first Swamp visit by a linked player using the mod. Prepare supplies, a portal and poison resistance before visiting."
+  },
+  {
+    "sk": "Pri bezpečnej hranici biomu pripravte kryté miesto na oddych, pracovný stôl, truhlu a prístup k návratovému portálu. Nenahrádza hlavnú základňu.",
+    "en": "At a safe biome border, prepare a sheltered resting place, workbench, chest and access to a return portal. This does not replace the main base."
+  },
+  {
+    "sk": " • Úroveň ",
+    "en": " • Level "
+  }
+]
