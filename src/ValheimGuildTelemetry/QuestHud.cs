@@ -151,6 +151,11 @@ public partial class Plugin
         GUILayout.BeginHorizontal();GUILayout.Label("DENNÍK GUILDY",heading);
         if(GUILayout.Button("Zavrieť ["+journalKey.Value+"]",button,GUILayout.Width(145))) CloseJournal();
         GUILayout.EndHorizontal();
+        GUILayout.BeginHorizontal();
+        if(GUILayout.Button("Questy",button)) showSupplies=false;
+        if(GUILayout.Button("Zásoby a výbava",button)) showSupplies=true;
+        GUILayout.EndHorizontal();
+        if(showSupplies) { DrawSupplies();GUI.DragWindow(new Rect(0,0,journalRect.width-160,40));return; }
         GUILayout.Label(StatusText(),muted);
         var snapshot=quests.Client.Snapshot;
         if(snapshot==null) { GUILayout.Label("Questy sa načítajú po prepojení herného účtu s Discordom.",body);return; }

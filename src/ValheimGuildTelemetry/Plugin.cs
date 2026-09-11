@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace ValheimGuildTelemetry;
 
-[BepInPlugin("adwery.valheim.guildtelemetry","Valheim Guild Telemetry","1.2.0")]
+[BepInPlugin("adwery.valheim.guildtelemetry","Valheim Guild Telemetry","1.3.0")]
 public partial class Plugin : BaseUnityPlugin
 {
     private const string RpcName="AdweryGuildTelemetryV1";
@@ -33,7 +33,7 @@ public partial class Plugin : BaseUnityPlugin
         Logger.LogInfo("Guild telemetry loaded: kill credit, successful crafting and biome entry hooks ready.");
     }
 
-    private void OnDestroy() { CloseJournal(); if(backdrop!=null) Destroy(backdrop); harmony?.UnpatchSelf(); if (Instance==this) Instance=null; }
+    private void OnDestroy() { SaveSupplies(); CloseJournal(); if(backdrop!=null) Destroy(backdrop); harmony?.UnpatchSelf(); if (Instance==this) Instance=null; }
     private bool CorrectWorld() => WorldGuard.Matches(ZNet.instance,expectedUid.Value);
 
     private void Update()
@@ -47,6 +47,7 @@ public partial class Plugin : BaseUnityPlugin
                 registered=ZRoutedRpc.instance;
                 quests.Register(registered);
             }
+            TickSupplies();
             quests.Tick();
             if (!CorrectWorld()) return;
             if (ZNet.instance.IsServer())

@@ -64,3 +64,29 @@ Check(QuestTracker.Select(tracking).Count==5);
 foreach(var q in tracking.quests) q.completed=true;
 Check(QuestTracker.Select(tracking).Count==0);
 Console.WriteLine("Automatic tracker: partial progress, chapter advancement, refill and all-completed passed.");
+var stock=new SupplyCache {identity="world:character"};
+SupplyItem Potion(int count) => new SupplyItem {key="potion",name="Potion",count=count,quality=1};
+stock.Observe(new ChestSeen {id="chest1",name="Chest",checked_at=1000,items=new System.Collections.Generic.List<SupplyItem>{Potion(8)}});
+var pack=new System.Collections.Generic.List<SupplyItem>();
+Check(stock.LastSeen("potion")==8);
+Check(stock.Needed(pack,"potion",2)==2); // Stored items cannot claim readiness.
+stock.Observe(new ChestSeen {id="chest1",name="Chest",checked_at=1001,items=new System.Collections.Generic.List<SupplyItem>{Potion(6)}});
+pack.Add(Potion(2));
+Check(stock.chests.Count==1 && stock.LastSeen("potion")==6 && stock.Needed(pack,"potion",2)==0);
+stock.SetTarget("potion",2,"Potion");
+var frozen=stock.Copy();
+stock.SetTarget("potion",5,"Potion");
+Check(frozen.targets[0].count==2); // Background writer gets an immutable projection.
+stock.Observe(new ChestSeen {id="chest1",name="Chest",checked_at=1002});
+pack.Clear();Check(stock.LastSeen("potion")==0 && stock.Needed(pack,"potion",2)==2);
+Check(stock.targets[0].count==5); // Target survives empty storage and inventory.
+var persisted=QuestJson.Read<SupplyCache>(QuestJson.Write(stock));
+Check(persisted.Valid("world:character",1003));
+Check(!persisted.Valid("other:character",1003));
+Check(!persisted.Valid("world:other-character",1003));
+persisted.chests[0].checked_at=999999;Check(!persisted.Valid("world:character",1003));
+Check(!SupplyCache.ValidItems(new System.Collections.Generic.List<SupplyItem>{Potion(-1)}));
+for(int i=0;i<110;i++) stock.Observe(new ChestSeen {id="c"+i,name="Chest",checked_at=1100+i});
+Check(stock.chests.Count==100);
+Check(stock.Valid("world:character",1300));
+Console.WriteLine("Supply scan: transfers, empty chests, no false readiness, cache identity, persistence and limits passed.");
